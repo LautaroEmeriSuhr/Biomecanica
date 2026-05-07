@@ -111,75 +111,10 @@ producto_punto = dot(Datos.Pasada.SistemaCoordenadoAnatomico.Pierna.Izquierda.k,
 beta_l_ajc = -asin(producto_punto);
 Datos.Pasada.AngulosArticulares.Beta.Tobillo.Izquierdo = beta_l_ajc;
 
-% Calculo de Inversión y Eversión (Gamma)}
+% Calculo de Inversión y Eversión (Gamma)
 producto_punto = dot(I_l_ajc_normalizado, Datos.Pasada.SistemaCoordenadoAnatomico.Pie.Izquierdo.k, 2);
 gamma_l_ajc = -asin(producto_punto);
 Datos.Pasada.AngulosArticulares.Gamma.Tobillo.Izquierdo = gamma_l_ajc;
-
-%% Graficación 
-% Vector de tiempo (frames)
-N = length(alpha_r_hjc);
-t = 1:N;
-
-figure
-sgtitle('Ángulos Articulares - Miembros Inferiores')
-
-%% =======================
-%% CADERA
-subplot(3,3,1)
-plot(t, alpha_r_hjc, 'r', t, alpha_l_hjc, 'b')
-title('Cadera - Alpha')
-legend('Der','Izq')
-grid on
-
-subplot(3,3,2)
-plot(t, beta_r_hjc, 'r', t, beta_l_hjc, 'b')
-title('Cadera - Beta')
-grid on
-
-subplot(3,3,3)
-plot(t, gamma_r_hjc, 'r', t, gamma_l_hjc, 'b')
-title('Cadera - Gamma')
-grid on
-
-%% =======================
-%% RODILLA
-subplot(3,3,4)
-plot(t, alpha_r_kjc, 'r', t, alpha_l_kjc, 'b')
-title('Rodilla - Alpha')
-legend('Der','Izq')
-grid on
-
-subplot(3,3,5)
-plot(t, beta_r_kjc, 'r', t, beta_l_kjc, 'b')
-title('Rodilla - Beta')
-grid on
-
-subplot(3,3,6)
-plot(t, gamma_r_kjc, 'r', t, gamma_l_kjc, 'b')
-title('Rodilla - Gamma')
-grid on
-
-%% =======================
-%% TOBILLO
-subplot(3,3,7)
-plot(t, alpha_r_ajc, 'r', t, alpha_l_ajc, 'b')
-title('Tobillo - Alpha')
-legend('Der','Izq')
-xlabel('Frames')
-grid on
-
-subplot(3,3,8)
-plot(t, beta_r_ajc, 'r', t, beta_l_ajc, 'b')
-title('Tobillo - Beta')
-xlabel('Frames')
-grid on
-
-subplot(3,3,9)
-plot(t, gamma_r_ajc, 'r', t, gamma_l_ajc, 'b')
-title('Tobillo - Gamma')
-xlabel('Frames')
-grid on
 
 %% Graficación de Reporte
 %% =======================
