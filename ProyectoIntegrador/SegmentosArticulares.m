@@ -60,6 +60,13 @@ Datos.Pasada.Vectores.Pierna.Derecha.w = wnormalizado;
 u = Datos.Pasada.Marcadores.Valores.r_met - Datos.Pasada.Marcadores.Valores.r_heel;
 unormalizado = ConvierteVectorAVersor(u);
 
+% v = cross((Datos.Pasada.Marcadores.Valores.r_heel  - Datos.Pasada.Marcadores.Valores.r_mall), ...
+%           (Datos.Pasada.Marcadores.Valores.r_met - Datos.Pasada.Marcadores.Valores.r_mall));
+% vnormalizado = ConvierteVectorAVersor(v);
+% 
+% w = cross(unormalizado, vnormalizado);
+% wnormalizado = ConvierteVectorAVersor(w);
+
 w = cross((Datos.Pasada.Marcadores.Valores.r_met  - Datos.Pasada.Marcadores.Valores.r_mall), ...
           (Datos.Pasada.Marcadores.Valores.r_heel - Datos.Pasada.Marcadores.Valores.r_mall));
 wnormalizado = ConvierteVectorAVersor(w);
@@ -68,8 +75,9 @@ v = cross(wnormalizado, unormalizado);
 vnormalizado = ConvierteVectorAVersor(v);
 
 Datos.Pasada.Vectores.Pie.Derecho.u = unormalizado;
-Datos.Pasada.Vectores.Pie.Derecho.v = -wnormalizado; %% Consultar esto
-Datos.Pasada.Vectores.Pie.Derecho.w = vnormalizado;
+Datos.Pasada.Vectores.Pie.Derecho.v = vnormalizado;
+Datos.Pasada.Vectores.Pie.Derecho.w = wnormalizado;
+
 
 %% ---- PIERNA IZQUIERDA ----
 
@@ -91,6 +99,13 @@ Datos.Pasada.Vectores.Pierna.Izquierda.w = wnormalizado;
 u = Datos.Pasada.Marcadores.Valores.l_met - Datos.Pasada.Marcadores.Valores.l_heel;
 unormalizado = ConvierteVectorAVersor(u);
 
+% v = cross((Datos.Pasada.Marcadores.Valores.l_met  - Datos.Pasada.Marcadores.Valores.l_mall), ...
+%           (Datos.Pasada.Marcadores.Valores.l_heel - Datos.Pasada.Marcadores.Valores.l_mall));
+% vnormalizado = ConvierteVectorAVersor(v);
+% 
+% w = cross(unormalizado, vnormalizado);
+% wnormalizado = ConvierteVectorAVersor(w);
+
 w = cross((Datos.Pasada.Marcadores.Valores.l_met  - Datos.Pasada.Marcadores.Valores.l_mall), ...
           (Datos.Pasada.Marcadores.Valores.l_heel - Datos.Pasada.Marcadores.Valores.l_mall));
 wnormalizado = ConvierteVectorAVersor(w);
@@ -99,8 +114,8 @@ v = cross(wnormalizado, unormalizado);
 vnormalizado = ConvierteVectorAVersor(v);
 
 Datos.Pasada.Vectores.Pie.Izquierdo.u = unormalizado;
-Datos.Pasada.Vectores.Pie.Izquierdo.v = wnormalizado;
-Datos.Pasada.Vectores.Pie.Izquierdo.w = -vnormalizado; %% Consultar esto
+Datos.Pasada.Vectores.Pie.Izquierdo.v = vnormalizado;
+Datos.Pasada.Vectores.Pie.Izquierdo.w = wnormalizado;
 
 %% Graficacion
 
@@ -130,6 +145,7 @@ for nframe = 1:10:frames
     quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
 end
 
+
 %% ---- PIE DERECHO ----
 frames = length(Datos.Pasada.Marcadores.Valores.r_mall);
 Origen = Datos.Pasada.Marcadores.Valores.r_mall;
@@ -155,6 +171,7 @@ for nframe = 1:10:frames
     quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
     quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
 end
+
 
 %% ---- PIE IZQUIERDO ----
 frames = length(Datos.Pasada.Marcadores.Valores.l_mall);

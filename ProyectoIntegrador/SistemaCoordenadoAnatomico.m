@@ -153,9 +153,10 @@ for nframe = 1:10:frames
 
 end
 
-% Leyenda
+
+%% Leyenda
 h1 = plot3(nan,nan,nan, '-r', 'LineWidth', 2);
 h2 = plot3(nan,nan,nan, '-g', 'LineWidth', 2);
 h3 = plot3(nan,nan,nan, '-b', 'LineWidth', 2);
-legend([h1 h2 h3], {'i (longitudinal)', 'j (anteroposterior)', 'k (mediolateral)'});
+legend([h1 h2 h3], {'i (anteroposterior)', 'j (longitudinal)', 'k (mediolateral)'});
 view(3);

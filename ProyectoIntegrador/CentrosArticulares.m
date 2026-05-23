@@ -33,16 +33,16 @@ function Datos = CentrosArticulares(Datos)
     YH = C*sin(TitaDavis)-LONGITUD_ASIS/2;
 
     ZH = (-PROFUNDIDAD_PELVIS)*sin(BetaDavis)-C*cos(TitaDavis)*cos(BetaDavis);
-    p_cadera_derecha = PmedioAsis+epx.*XH+epy.*YH+epz.*ZH; %me desplazo desde el punto medio de los ASIS direcciones de epx, epy y epz un porcentaje del ancho de la pelvis (de ASIS a ASIS) y profundifad de pelvis;
-    p_cadera_izquierda = PmedioAsis+epx.*XH-epy.*YH+epz.*ZH; %me desplazo desde el punto medio de los ASIS direcciones de epx, epy y epz un porcentaje del ancho de la pelvis (de ASIS a ASIS) y profundifad de pelvis;
+    p_cadera_derecha = PmedioAsis + epx.*XH + epy.*YH + epz.*ZH; %me desplazo desde el punto medio de los ASIS direcciones de epx, epy y epz un porcentaje del ancho de la pelvis (de ASIS a ASIS) y profundifad de pelvis;
+    p_cadera_izquierda = PmedioAsis + epx.*XH - epy.*YH + epz.*ZH; %me desplazo desde el punto medio de los ASIS direcciones de epx, epy y epz un porcentaje del ancho de la pelvis (de ASIS a ASIS) y profundifad de pelvis;
 
     Datos.Pasada.CentrosArticulares.Cadera.Derecha   = p_cadera_derecha;
     Datos.Pasada.CentrosArticulares.Cadera.Izquierda = p_cadera_izquierda;
 %% Centro Articular Rodilla Derecha
 
 p_rodilla_derecha = Datos.Pasada.Marcadores.Valores.r_knee_1 ...
-                  + 0.000 * Datos.antropometria.DIAMETRO_RODILLA_DERECHA.Valor/100 * Datos.Pasada.Vectores.Pierna.Derecha.u ...
-                  + 0.000 * Datos.antropometria.DIAMETRO_RODILLA_DERECHA.Valor/100 * Datos.Pasada.Vectores.Pierna.Derecha.v ...
+                  + 0.000 * Datos.Pasada.Vectores.Pierna.Derecha.u ...
+                  + 0.000 * Datos.Pasada.Vectores.Pierna.Derecha.v ...
                   + 0.500 * Datos.antropometria.DIAMETRO_RODILLA_DERECHA.Valor/100 * Datos.Pasada.Vectores.Pierna.Derecha.w;
 
 Datos.Pasada.CentrosArticulares.Rodilla.Derecha = p_rodilla_derecha;
@@ -50,8 +50,8 @@ Datos.Pasada.CentrosArticulares.Rodilla.Derecha = p_rodilla_derecha;
 %% Centro Articular Rodilla Izquierda
 
 p_rodilla_izquierda = Datos.Pasada.Marcadores.Valores.l_knee_1 ...
-                    + 0.000 * Datos.antropometria.DIAMETRO_RODILLA_IZQUIERDA.Valor/100 * Datos.Pasada.Vectores.Pierna.Izquierda.u ...
-                    + 0.000 * Datos.antropometria.DIAMETRO_RODILLA_IZQUIERDA.Valor/100 * Datos.Pasada.Vectores.Pierna.Izquierda.v ...
+                    + 0.000 * Datos.Pasada.Vectores.Pierna.Izquierda.u ...
+                    + 0.000 * Datos.Pasada.Vectores.Pierna.Izquierda.v ...
                     - 0.500 * Datos.antropometria.DIAMETRO_RODILLA_IZQUIERDA.Valor/100 * Datos.Pasada.Vectores.Pierna.Izquierda.w;
 
 Datos.Pasada.CentrosArticulares.Rodilla.Izquierda = p_rodilla_izquierda;
@@ -65,15 +65,6 @@ p_tobillo_derecho = Datos.Pasada.Marcadores.Valores.r_mall ...
 
 Datos.Pasada.CentrosArticulares.Tobillo.Derecho = p_tobillo_derecho;
 
-%% Centro Articular Dedo Gordo Derecho
-
-p_dedo_gordo_derecho = Datos.Pasada.Marcadores.Valores.r_mall ...
-                     + 0.742 * Datos.antropometria.LONGITUD_PIE_DERECHO.Valor/100    * Datos.Pasada.Vectores.Pie.Derecho.u ... 
-                     + 1.074 * Datos.antropometria.ALTURA_MALEOLOS_DERECHO.Valor/100 * Datos.Pasada.Vectores.Pie.Derecho.v ...
-                     - 0.187 * Datos.antropometria.ANCHO_PIE_DERECHO.Valor/100       * Datos.Pasada.Vectores.Pie.Derecho.w;
-
-Datos.Pasada.CentrosArticulares.DedoGordo.Derecho = p_dedo_gordo_derecho;
-
 %% Centro Articular Tobillo Izquierdo
 
 p_tobillo_izquierdo = Datos.Pasada.Marcadores.Valores.l_mall ...
@@ -83,12 +74,21 @@ p_tobillo_izquierdo = Datos.Pasada.Marcadores.Valores.l_mall ...
 
 Datos.Pasada.CentrosArticulares.Tobillo.Izquierdo = p_tobillo_izquierdo;
 
+%% Centro Articular Dedo Gordo Derecho
+
+p_dedo_gordo_derecho = Datos.Pasada.Marcadores.Valores.r_mall ...
+                     + 0.742 * (Datos.antropometria.LONGITUD_PIE_DERECHO.Valor/100)    * Datos.Pasada.Vectores.Pie.Derecho.u ... 
+                     + 1.074 * (Datos.antropometria.ALTURA_MALEOLOS_DERECHO.Valor/100) * Datos.Pasada.Vectores.Pie.Derecho.v ...
+                     - 0.187 * (Datos.antropometria.ANCHO_PIE_DERECHO.Valor/100)       * Datos.Pasada.Vectores.Pie.Derecho.w;
+
+Datos.Pasada.CentrosArticulares.DedoGordo.Derecho = p_dedo_gordo_derecho;
+
 %% Centro Articular Dedo Gordo Izquierdo 
 
 p_dedo_gordo_izquierdo = Datos.Pasada.Marcadores.Valores.l_mall ...
-                     + 0.742 * Datos.antropometria.LONGITUD_PIE_IZQUIERDO.Valor/100    * Datos.Pasada.Vectores.Pie.Izquierdo.u ... 
-                     + 1.074 * Datos.antropometria.ALTURA_MALEOLOS_IZQUIERDO.Valor/100 * Datos.Pasada.Vectores.Pie.Izquierdo.v ...
-                     + 0.187 * Datos.antropometria.ANCHO_PIE_IZQUIERDO.Valor/100       * Datos.Pasada.Vectores.Pie.Izquierdo.w;
+                     + 0.742 * (Datos.antropometria.LONGITUD_PIE_IZQUIERDO.Valor/100)    * Datos.Pasada.Vectores.Pie.Izquierdo.u ... 
+                     + 1.074 * (Datos.antropometria.ALTURA_MALEOLOS_IZQUIERDO.Valor/100) * Datos.Pasada.Vectores.Pie.Izquierdo.v ...
+                     + 0.187 * (Datos.antropometria.ANCHO_PIE_IZQUIERDO.Valor/100)       * Datos.Pasada.Vectores.Pie.Izquierdo.w;
     
 Datos.Pasada.CentrosArticulares.DedoGordo.Izquierdo = p_dedo_gordo_izquierdo;
 
@@ -145,6 +145,33 @@ for nframe = 1:10:frames
     plot3(p_dedo_gordo_izquierdo(nframe,1), p_dedo_gordo_izquierdo(nframe,2), p_dedo_gordo_izquierdo(nframe,3), '^', 'MarkerSize',7, 'MarkerEdgeColor',color_dedo, 'MarkerFaceColor','w');
 
 end
+
+%% Verificacion de distancias CA - Marcador
+fprintf('\n=== DISTANCIAS PROMEDIO CA - MARCADOR ===\n');
+
+% Tobillo Derecho (CA vs r_mall)
+d = sqrt(sum((p_tobillo_derecho - Datos.Pasada.Marcadores.Valores.r_mall).^2, 2));
+fprintf('Tobillo Derecho:   media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+
+% Tobillo Izquierdo (CA vs l_mall)
+d = sqrt(sum((p_tobillo_izquierdo - Datos.Pasada.Marcadores.Valores.l_mall).^2, 2));
+fprintf('Tobillo Izquierdo: media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+
+% Dedo Gordo Derecho (CA vs r_met)
+d = sqrt(sum((p_dedo_gordo_derecho - Datos.Pasada.Marcadores.Valores.r_met).^2, 2));
+fprintf('Dedo Gordo Derecho:   media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+
+% Dedo Gordo Izquierdo (CA vs l_met)
+d = sqrt(sum((p_dedo_gordo_izquierdo - Datos.Pasada.Marcadores.Valores.l_met).^2, 2));
+fprintf('Dedo Gordo Izquierdo: media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+
+% Rodilla Derecha (CA vs r_knee_1)
+d = sqrt(sum((p_rodilla_derecha - Datos.Pasada.Marcadores.Valores.r_knee_1).^2, 2));
+fprintf('Rodilla Derecha:   media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+
+% Rodilla Izquierda (CA vs l_knee_1)
+d = sqrt(sum((p_rodilla_izquierda - Datos.Pasada.Marcadores.Valores.l_knee_1).^2, 2));
+fprintf('Rodilla Izquierda: media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
 
 %% Leyenda
 h1 = plot3(nan,nan,nan,'x',  'Color',color_cadera,  'LineWidth',1.5);
