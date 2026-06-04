@@ -30,7 +30,6 @@ function graficar(x, y_der, y_izq, x_RTO, x_LTO, titulo)
 
     title(titulo)
     xlabel('% Ciclo de Marcha')
-    ylabel('°') 
     grid on
 
     hold off

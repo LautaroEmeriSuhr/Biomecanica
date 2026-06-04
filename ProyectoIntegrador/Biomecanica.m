@@ -55,9 +55,13 @@ Datos = SistemaCoordenadoAnatomico(Datos);
 
 Datos = CalculoAngulosArticulares(Datos);
 
+Datos = CalculoParametrosInerciales(Datos);
+
 dt = 1/Datos.info.Cinematica.frequency; %% Periodo de muestreo del sistema de Adquisición
 fc = 6; %% Frecuencia de corte del Filtro Pasa-Bajos de Butterworth de 2do Orden
 
+Datos = CalculoCinematicaLineal(Datos, dt, fc);
+
 Datos = CalculoCinematicaAngular(Datos, dt, fc);
 
-%Datos = CalculoParametrosInerciales(Datos);
+Datos = CalculoFuerzasArticulares(Datos, DerechaPlataforma1, PrimerFrame, UltimoFrame);

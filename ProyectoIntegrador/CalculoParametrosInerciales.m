@@ -98,8 +98,6 @@ segmentos = {
 PI = struct();   % estructura local que se va llenando
 
 for s = 1:size(segmentos, 1)
-    fprintf('Segmento %d: %s | prox=%s | dist=%s\n', ...
-        s, segmentos{s,1}, segmentos{s,3}, segmentos{s,4});
     nombre = segmentos{s, 1};
     tipo   = segmentos{s, 2};
     P_prox = obtenerCentro(Datos, segmentos{s, 3});   % [n x 3]

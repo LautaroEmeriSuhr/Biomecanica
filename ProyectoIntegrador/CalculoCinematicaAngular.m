@@ -98,6 +98,41 @@ for s = 1:size(segmentos, 1)
                                                 beta, derivada_beta, ...
                                                 gama, derivada_gama);
 
+        % ---- (8) Cantidad de movimiento angular en coordenadas locales ----
+        % H_segmento = I_0 · ω_segmento  (apunte, sección 2.6).
+        % Como I_0 está expresada en ejes anatómicos del segmento y ω
+        % también está en coordenadas locales, el producto es directo y
+        % el resultado queda en el mismo sistema. I_0 es constante en el
+        % tiempo (no depende de la orientación del segmento).
+        %
+        % Si ω se ordena como filas [wx wy wz] (n×3), entonces:
+        %     H (n×3) = ω (n×3) · I_0' (3×3)
+        I_0 = Datos.Pasada.ParametrosInerciales.(seg).(lado).I_0;
+
+        H  = [wx, wy, wz] * I_0.';   % n×3, cada fila es H en el instante i
+        Hx = H(:, 1);
+        Hy = H(:, 2);
+        Hz = H(:, 3);
+
+        % ---- (9) Derivada de la cantidad de movimiento angular ----
+        % dH/dt en coordenadas LOCALES del segmento (apunte, sec. 2.6 y 2.7.3).
+        % H ya está expresada en ejes anatómicos (porque I0 está reportada
+        % en esos ejes), por lo que la derivada se calcula componente a
+        % componente sin necesidad de cambio de base.
+        dHx_dt = derivadaDiscreta(Hx, dt);
+        dHy_dt = derivadaDiscreta(Hy, dt);
+        dHz_dt = derivadaDiscreta(Hz, dt);
+
+         % ---- Derivada discreta centrada → aceleración angular ----
+        alphax = derivadaDiscreta(wx, dt);
+        alphay = derivadaDiscreta(wy, dt);
+        alphaz = derivadaDiscreta(wz, dt);
+
+        % ---- Guardado en la estructura Datos ----
+        Datos.Pasada.AceleracionAngular.(seg).(lado).alphax = alphax;
+        Datos.Pasada.AceleracionAngular.(seg).(lado).alphay = alphay;
+        Datos.Pasada.AceleracionAngular.(seg).(lado).alphaz = alphaz;
+
         % ---- Guardado en la estructura Datos ----
         Datos.Pasada.AngulosEuler.(seg).(lado).alfa          = alfa;
         Datos.Pasada.AngulosEuler.(seg).(lado).beta          = beta;
@@ -112,6 +147,15 @@ for s = 1:size(segmentos, 1)
         Datos.Pasada.VelocidadAngular.(seg).(lado).wx = wx;
         Datos.Pasada.VelocidadAngular.(seg).(lado).wy = wy;
         Datos.Pasada.VelocidadAngular.(seg).(lado).wz = wz;
+
+        Datos.Pasada.CantidadMovimientoAngular.(seg).(lado).Hx = Hx;
+        Datos.Pasada.CantidadMovimientoAngular.(seg).(lado).Hy = Hy;
+        Datos.Pasada.CantidadMovimientoAngular.(seg).(lado).Hz = Hz;
+
+        Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(lado).dHx_dt = dHx_dt;
+        Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(lado).dHy_dt = dHy_dt;
+        Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(lado).dHz_dt = dHz_dt;
+
     end
 end
 %% Graficacion
@@ -138,10 +182,12 @@ segmentos = {
     'Pierna',  'Derecha',  'Izquierda';
     'Pie',     'Derecho',  'Izquierdo'
 };
-componentes = {'wx',     'wy',          'wz'};
+
 ejes        = {'i (AP)', 'j (long.)',   'k (ML)'};
  
-%% Figura
+%% Figura Velocidad Angular de los Segmentos
+componentes = {'wx',     'wy',          'wz'};
+
 figure('Name', 'Velocidades angulares de los segmentos');
 sgtitle('Velocidades Angulares de los Segmentos - Ciclo de Marcha', ...
         'FontSize', 14, 'FontWeight', 'bold');
@@ -162,9 +208,88 @@ for s = 1:size(segmentos, 1)
             InterpolaA100Muestras(senal_izq(rng_L)), ...
             x_RTO, x_LTO, ...
             ['Vel Ang ', seg, ' - versor ', ejes{c}]);
+        ylabel('°/s')
     end
 end
 
+%% Figura Aceleración Angular de los Segmentos
+componentes = {'alphax',  'alphay',     'alphaz'};
+
+figure('Name', 'Aceleraciones angulares de los segmentos');
+sgtitle('Aceleraciones Angulares de los Segmentos - Ciclo de Marcha', ...
+        'FontSize', 14, 'FontWeight', 'bold');
+
+for s = 1:size(segmentos, 1)
+    seg    = segmentos{s, 1};
+    sufDer = segmentos{s, 2};
+    sufIzq = segmentos{s, 3};
+
+    for c = 1:length(componentes)
+        subplot(3, 3, (s-1)*3 + c);
+
+        senal_der = Datos.Pasada.AceleracionAngular.(seg).(sufDer).(componentes{c});
+        senal_izq = Datos.Pasada.AceleracionAngular.(seg).(sufIzq).(componentes{c});
+
+        graficar(x, ...
+            InterpolaA100Muestras(senal_der(rng_R)), ...
+            InterpolaA100Muestras(senal_izq(rng_L)), ...
+            x_RTO, x_LTO, ...
+            ['Acel Ang ', seg, ' - versor ', ejes{c}]);
+        ylabel('°/s^2')
+    end
+end
+
+%% Figura de Cantidad de Movimiento Angular de cada Segmento
+componentes = {'Hx',      'Hy',          'Hz'};
+
+figure('Name', 'Cantidad de movimiento angular de los segmentos');
+sgtitle('Cantidad de Movimiento Angular de los Segmentos - Ciclo de Marcha', ...
+        'FontSize', 14, 'FontWeight', 'bold');
+
+for s = 1:size(segmentos, 1)
+    seg    = segmentos{s, 1};
+    sufDer = segmentos{s, 2};
+    sufIzq = segmentos{s, 3};
+
+    for c = 1:length(componentes)
+        subplot(3, 3, (s-1)*3 + c);
+
+        senal_der = Datos.Pasada.CantidadMovimientoAngular.(seg).(sufDer).(componentes{c});
+        senal_izq = Datos.Pasada.CantidadMovimientoAngular.(seg).(sufIzq).(componentes{c});
+
+        graficar(x, ...
+            InterpolaA100Muestras(senal_der(rng_R)), ...
+            InterpolaA100Muestras(senal_izq(rng_L)), ...
+            x_RTO, x_LTO, ...
+            ['H ', seg, ' - versor ', ejes{c}]);
+        ylabel('H [kg\cdotm^2/s]')
+    end
+end
+%% Figura: Derivada de la Cantidad de Movimiento Angular de cada Segmento
+componentes = {'dHx_dt',  'dHy_dt',     'dHz_dt'};
+
+figure('Name', 'Derivada de la cantidad de movimiento angular');
+sgtitle('dH/dt de los Segmentos - Ciclo de Marcha', ...
+        'FontSize', 14, 'FontWeight', 'bold');
+
+for s = 1:size(segmentos, 1)
+    seg    = segmentos{s, 1};
+    sufDer = segmentos{s, 2};
+    sufIzq = segmentos{s, 3};
+
+    for c = 1:length(componentes)
+        subplot(3, 3, (s-1)*3 + c);
+
+        senal_der = Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(sufDer).(componentes{c});
+        senal_izq = Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(sufIzq).(componentes{c});
+
+        graficar(x, ...
+            InterpolaA100Muestras(senal_der(rng_R)), ...
+            InterpolaA100Muestras(senal_izq(rng_L)), ...
+            x_RTO, x_LTO, ...
+            ['dH/dt ', seg, ' - versor ', ejes{c}]);
+    end
+end
 end % ===================== fin función principal =========================
 
 % =========================================================================
