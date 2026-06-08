@@ -33,7 +33,6 @@ fs     = 1/dt;
 % Columnas: { nombre del campo en ParametrosInerciales, sufijo der., sufijo izq. }
 % Pelvis tiene un solo lado → sufijos vacíos.
 segmentos = {
-    'Pelvis',  '',          '';
     'Muslo',   'Derecho',   'Izquierdo';
     'Pierna',  'Derecha',   'Izquierda';
     'Pie',     'Derecho',   'Izquierdo'
@@ -105,9 +104,7 @@ rng_L = Datos.eventos.FrameLHS1 : Datos.eventos.FrameLHS2;
 
 %% Tabla de segmentos
 % Columnas: { nombre, sufijo derecho, sufijo izquierdo }
-% Pelvis es un único segmento → sufijos vacíos.
 segmentos = {
-    'Pelvis',  '',          '';
     'Muslo',   'Derecho',   'Izquierdo';
     'Pierna',  'Derecha',   'Izquierda';
     'Pie',     'Derecho',   'Izquierdo'
@@ -130,7 +127,7 @@ for s = 1:size(segmentos, 1)
     sufIzq = segmentos{s, 3};
 
     for c = 1:length(componentes)
-        subplot(4, 3, (s-1)*3 + c);
+        subplot(3, 3, (s-1)*3 + c);
 
         [senal_der, senal_izq] = obtenerSenales(Datos, ...
             'VelocidadLineal', seg, sufDer, sufIzq, componentes{c});
@@ -157,7 +154,7 @@ for s = 1:size(segmentos, 1)
     sufIzq = segmentos{s, 3};
 
     for c = 1:length(componentes)
-        subplot(4, 3, (s-1)*3 + c);
+        subplot(3, 3, (s-1)*3 + c);
 
         [senal_der, senal_izq] = obtenerSenales(Datos, ...
             'AceleracionLineal', seg, sufDer, sufIzq, componentes{c});
