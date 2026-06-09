@@ -173,20 +173,29 @@ dHdt_muslo_D = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Muslo.Derecho.dHx
 % Momento NETO de CADERA (M_R.Hip) = dH/dt_local - M_D_local - MRes_local
 M_cadera_D = dHdt_muslo_D - MD_muslo_D_local - MR_muslo_D_local;
 
-% =====================================================================
-% GUARDAR LADO DERECHO
-% =====================================================================
-Datos.Pasada.MomentosArticulares.Tobillo.Derecho.Mx = M_tobillo_D(:,1);
-Datos.Pasada.MomentosArticulares.Tobillo.Derecho.My = M_tobillo_D(:,2);
-Datos.Pasada.MomentosArticulares.Tobillo.Derecho.Mz = M_tobillo_D(:,3);
-
-Datos.Pasada.MomentosArticulares.Rodilla.Derecha.Mx = M_rodilla_D(:,1);
-Datos.Pasada.MomentosArticulares.Rodilla.Derecha.My = M_rodilla_D(:,2);
-Datos.Pasada.MomentosArticulares.Rodilla.Derecha.Mz = M_rodilla_D(:,3);
-
-Datos.Pasada.MomentosArticulares.Cadera.Derecha.Mx  = M_cadera_D(:,1);
-Datos.Pasada.MomentosArticulares.Cadera.Derecha.My  = M_cadera_D(:,2);
-Datos.Pasada.MomentosArticulares.Cadera.Derecha.Mz  = M_cadera_D(:,3);
+fprintf('=== DIAGNÓSTICO EXTENDIDO ===\n');
+fprintf('NaN M_tobillo_D  : %d\n', sum(any(isnan(M_tobillo_D),2)));
+fprintf('NaN MR_pie_D_loc : %d\n', sum(any(isnan(MR_pie_D_local),2)));
+fprintf('NaN rP_pie_D     : %d\n', sum(any(isnan(rP_pie_D),2)));
+fprintf('NaN rA_pie_D     : %d\n', sum(any(isnan(rA_pie_D),2)));
+fprintf('NaN CP_D         : %d\n', sum(any(isnan(CP_D),2)));
+fprintf('NaN F_tobillo_D  : %d\n', sum(any(isnan(F_tobillo_D),2)));
+fprintf('--- PIERNA ---\n');
+fprintf('NaN M_rodilla_D  : %d\n', sum(any(isnan(M_rodilla_D),2)));
+fprintf('NaN MR_pierna_loc: %d\n', sum(any(isnan(MR_pierna_D_local),2)));
+fprintf('NaN MD_pierna_loc: %d\n', sum(any(isnan(MD_pierna_D_local),2)));
+fprintf('NaN F_rodilla_D  : %d\n', sum(any(isnan(F_rodilla_D),2)));
+fprintf('NaN rP_pierna_D  : %d\n', sum(any(isnan(rP_pierna_D),2)));
+fprintf('NaN rD_pierna_D  : %d\n', sum(any(isnan(rD_pierna_D),2)));
+fprintf('--- MUSLO ---\n');
+fprintf('NaN M_cadera_D   : %d\n', sum(any(isnan(M_cadera_D),2)));
+fprintf('NaN MR_muslo_loc : %d\n', sum(any(isnan(MR_muslo_D_local),2)));
+fprintf('NaN MD_muslo_loc : %d\n', sum(any(isnan(MD_muslo_D_local),2)));
+fprintf('NaN F_cadera_D   : %d\n', sum(any(isnan(F_cadera_D),2)));
+fprintf('NaN rP_muslo_D   : %d\n', sum(any(isnan(rP_muslo_D),2)));
+fprintf('NaN rD_muslo_D   : %d\n', sum(any(isnan(rD_muslo_D),2)));
+fprintf('NaN dHdt_pierna  : %d\n', sum(any(isnan(dHdt_pierna_D),2)));
+fprintf('NaN dHdt_muslo   : %d\n', sum(any(isnan(dHdt_muslo_D),2)));
 
 % =====================================================================
 % PIE IZQUIERDO  (segmento 6)   F_D = 0 ; F_A = GRF ; M_A = [0 0 Tz]
@@ -350,7 +359,7 @@ dHdt_muslo_I = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Muslo.Izquierdo.d
 M_cadera_I = dHdt_muslo_I - MD_muslo_I_local - MR_muslo_I_local;
 
 % =====================================================================
-% GUARDAR LADO IZQUIERDO
+% GUARDAR LADO IZQUIERDO EN Datos
 % =====================================================================
 Datos.Pasada.MomentosArticulares.Tobillo.Izquierdo.Mx = M_tobillo_I(:,1);
 Datos.Pasada.MomentosArticulares.Tobillo.Izquierdo.My = M_tobillo_I(:,2);
@@ -363,6 +372,18 @@ Datos.Pasada.MomentosArticulares.Rodilla.Izquierda.Mz = M_rodilla_I(:,3);
 Datos.Pasada.MomentosArticulares.Cadera.Izquierda.Mx  = M_cadera_I(:,1);
 Datos.Pasada.MomentosArticulares.Cadera.Izquierda.My  = M_cadera_I(:,2);
 Datos.Pasada.MomentosArticulares.Cadera.Izquierda.Mz  = M_cadera_I(:,3);
+
+% Diagnóstico lado izquierdo
+fprintf('=== DIAGNÓSTICO IZQUIERDO ===\n');
+fprintf('NaN M_tobillo_I  : %d\n', sum(any(isnan(M_tobillo_I),2)));
+fprintf('NaN M_rodilla_I  : %d\n', sum(any(isnan(M_rodilla_I),2)));
+fprintf('NaN M_cadera_I   : %d\n', sum(any(isnan(M_cadera_I),2)));
+fprintf('NaN Tz_I         : %d\n', sum(isnan(Tz_I)));
+fprintf('NaN F_GRF_I      : %d\n', sum(any(isnan(F_GRF_I),2)));
+fprintf('NaN dHdt_pie_I   : %d\n', sum(any(isnan(dHdt_pie_I),2)));
+fprintf('NaN dHdt_pierna_I: %d\n', sum(any(isnan(dHdt_pierna_I),2)));
+fprintf('NaN dHdt_muslo_I : %d\n', sum(any(isnan(dHdt_muslo_I),2)));
+fprintf('=============================\n');
 
 %% ============================================================
 %  PROYECCION A EJES ANATOMICOS
@@ -403,61 +424,49 @@ Mcad_I_g = localAGlobal(M_cadera_I, SCA.Muslo.Izquierdo.i, SCA.Muslo.Izquierdo.j
     proyectarEjesArticulares(Mcad_I_g, SCA.Pelvis.k, SCA.Muslo.Izquierdo.i);
 
 %% ---- Ajuste de signos morfologicos (CONVENCION - toggle segun referencia) ----
-%% ---- Ajuste de signos morfologicos - DERECHO ----
+% Si una curva sale espejada respecto del apunte, comenta/descomenta la suya.
 rodD.flexext = -rodD.flexext;
 cadD.flexext = -cadD.flexext;
-% tobD.flexext = -tobD.flexext;  
-% rodD.abdadd  = -rodD.abdadd;
-% cadD.abdadd  = -cadD.abdadd;
-% rodD.rotie   = -rodD.rotie;
-% cadD.rotie   = -cadD.rotie;
-
-%% ---- Ajuste de signos morfologicos - IZQUIERDO ----
-% El lado izquierdo suele requerir los mismos ajustes que el derecho,
-% pero verificar contra el apunte antes de activar.
-rodI.flexext = -rodI.flexext;
-cadI.flexext = -cadI.flexext;
-% tobI.flexext = -tobI.flexext;
-% rodI.abdadd  = -rodI.abdadd;
-% cadI.abdadd  = -cadI.abdadd;
-% rodI.rotie   = -rodI.rotie;
-% cadI.rotie   = -cadI.rotie;
+% tobD.flexext = -tobD.flexext;   % activar si el plantarflexor sale negativo
 
 %% ============================================================
-%  GRAFICACION: Momentos articulares en ejes anatómicos
+%  GRAFICACION (en funcion del ciclo de marcha)
 %% ============================================================
+masa = Datos.antropometria.PESO.Valor;     % [kg]  (verifica que sea MASA, no peso en N)
+
+n = size(M_tobillo_D, 1);
+if isempty(Datos.eventos.FrameRHS1) || isnan(Datos.eventos.FrameRHS1)
+    rng_R = 1:n;
+else
+    rng_R = Datos.eventos.FrameRHS1 : Datos.eventos.FrameRHS2;
+end
+ciclo_R = Datos.eventos.FrameRHS2 - Datos.eventos.FrameRHS1;
+if isempty(ciclo_R) || ciclo_R <= 0, ciclo_R = n; end
+x_RTO = (Datos.eventos.FrameRTO - Datos.eventos.FrameRHS1) / ciclo_R * 100;
 x = linspace(0, 100, 100);
-ciclo_derecho   = Datos.eventos.FrameRHS2 - Datos.eventos.FrameRHS1;
-ciclo_izquierdo = Datos.eventos.FrameLHS2 - Datos.eventos.FrameLHS1;
-x_RTO = (Datos.eventos.FrameRTO - Datos.eventos.FrameRHS1) / ciclo_derecho   * 100;
-x_LTO = (Datos.eventos.FrameLTO - Datos.eventos.FrameLHS1) / ciclo_izquierdo * 100;
-rng_R = Datos.eventos.FrameRHS1 : Datos.eventos.FrameRHS2;
-rng_L = Datos.eventos.FrameLHS1 : Datos.eventos.FrameLHS2;
 
-% Filas: articulación. Columnas (pares der/izq): flexext, abdadd, rotie
+% Filas: articulaciones (proximal -> distal) ; Columnas: ejes anatomicos
 filas = {
-    'Cadera',   cadD.flexext, cadI.flexext, cadD.abdadd, cadI.abdadd, cadD.rotie, cadI.rotie;
-    'Rodilla',  rodD.flexext, rodI.flexext, rodD.abdadd, rodI.abdadd, rodD.rotie, rodI.rotie;
-    'Tobillo',  tobD.flexext, tobI.flexext, tobD.abdadd, tobI.abdadd, tobD.rotie, tobI.rotie
+ 'Cadera',  cadD.flexext, cadD.abdadd, cadD.rotie;
+ 'Rodilla', rodD.flexext, rodD.abdadd, rodD.rotie;
+ 'Tobillo', tobD.flexext, tobD.abdadd, tobD.rotie
 };
-ejesM = {'Ext(-)/Flex(+) [N·m/kg]', 'Add(-)/Abd(+) [N·m/kg]', 'RotExt(-)/RotInt(+) [N·m/kg]'};
+ejesY = {'Ext(-)/Flex(+) [N·m/kg]', 'Add(-)/Abd(+) [N·m/kg]', 'RotExt(-)/RotInt(+) [N·m/kg]'};
 
-figure('Name', 'Momentos articulares (ejes anatómicos)')
-sgtitle('Momentos Articulares Netos - Ciclo de Marcha', 'FontSize', 14, 'FontWeight', 'bold')
+figure('Name', 'Momentos articulares ')
+sgtitle('Momentos Articulares Netos - Ciclo de Marcha', 'FontSize', 13, 'FontWeight', 'bold')
 
-masa = Datos.antropometria.PESO.Valor;   % [kg]
-
-for f = 1:size(filas, 1)
+for f = 1:3
     art = filas{f, 1};
     for c = 1:3
-        der = filas{f, 2 + (c-1)*2} / masa;   % columnas 2,4,6
-        izq = filas{f, 3 + (c-1)*2} / masa;   % columnas 3,5,7
+        senal = filas{f, c+1} / masa;
         subplot(3, 3, (f-1)*3 + c)
-        graficarMomentosArticulares(x, ...
-            InterpolaA100Muestras(der(rng_R)), ...
-            InterpolaA100Muestras(izq(rng_L)), ...
-            x_RTO, x_LTO, ['Momento ', art]);
-        ylabel(ejesM{c})
+        y = InterpolaA100Muestras(senal(rng_R));
+        plot(x, y, 'g', 'LineWidth', 2); hold on
+        xline(0,     'k--', 'RHS', 'LabelVerticalAlignment', 'bottom')
+        xline(x_RTO, 'g--', 'RTO', 'LabelVerticalAlignment', 'bottom')
+        title(['Momento ', art]); xlabel('% ciclo de marcha'); ylabel(ejesY{c})
+        grid on; hold off
     end
 end
  end

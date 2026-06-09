@@ -6,7 +6,7 @@ function Datos = CalculoFuerzasArticulares(Datos, DerechaPlataforma1)
 %   Datos = CalculoFuerzasArticulares(Datos, DerechaPlataforma1)
 %
 % ENTRADAS
-%   DerechaPlataforma1 : 1 -> Plataforma1 = pisada DERECHA (tu caso)
+%   DerechaPlataforma1 : 1 -> Plataforma1 = pisada DERECHA (mi caso)
 %                        0 -> Plataforma1 = pisada IZQUIERDA
 %   Datos.Pasada.ParametrosInerciales.<seg>.<lado>.masa            [kg]
 %   Datos.Pasada.AceleracionLineal.<seg>.<lado>.{ax,ay,az}         [n x 1, m/s2]
@@ -20,16 +20,6 @@ function Datos = CalculoFuerzasArticulares(Datos, DerechaPlataforma1)
 %   3ra ley: la fuerza distal del segmento k es -F_P del segmento k-1.
 %   La gravedad entra en Z como (az + 9.81), equivalente a -m*g con g=(0,0,-9.81).
 %
-% NOTAS / A VERIFICAR
-%   - La GRF de la plataforma se remuestrea a las n muestras de la cinemática
-%     (la plataforma muestrea a mayor frecuencia). Asume que fuerza y marcadores
-%     cubren la MISMA ventana temporal del trial.
-%   - F_A (GRF sobre el pie) debe ser positiva hacia arriba en apoyo. Si el
-%     'Fz medio en apoyo' sale negativo grande, invertí F_der/F_izq.
-%   - Ejes anatómicos: prox/distal = eje largo del segmento distal (.i);
-%     medio/lateral = eje ML del segmento proximal (.k); antero/posterior =
-%     eje flotante (perpendicular a ambos). El signo global de antpos puede
-%     necesitar inversión según la orientación de tu laboratorio.
 
 %% Ruteo de plataformas + remuestreo a la grilla de la cinemática
 n  = length(Datos.Pasada.AceleracionLineal.Pie.Derecho.ax);
@@ -39,14 +29,10 @@ P2 = Datos.Pasada.Fuerzas.Plataforma2.Valores;
 if DerechaPlataforma1 == 0          % Plataforma1 = izquierda
     F_der = [P2.Fx2, P2.Fy2, P2.Fz2];
     F_izq = [P1.Fx1, P1.Fy1, P1.Fz1];
-else                                % Plataforma1 = derecha (tu caso)
+else                                % Plataforma1 = derecha (mi caso)
     F_der = [P1.Fx1, P1.Fy1, P1.Fz1];
     F_izq = [P2.Fx2, P2.Fy2, P2.Fz2];
 end
-
-% Si el chequeo de Fz da negativo en apoyo, descomentá estas dos líneas:
-% F_der = -F_der;
-% F_izq = -F_izq;
 
 F_GRF.Derecho   = resamplearAGrilla(F_der, n);   % [n x 3]
 F_GRF.Izquierdo = resamplearAGrilla(F_izq, n);   % [n x 3]
@@ -94,32 +80,32 @@ F5 = [Fx5,Fy5,Fz5]; F3 = [Fx3,Fy3,Fz3]; F1 = [Fx1,Fy1,Fz1];
     aceleracion(Datos,'Muslo','Izquierdo'),  -Fx4, -Fy4, -Fz4);
 F6 = [Fx6,Fy6,Fz6]; F4 = [Fx4,Fy4,Fz4]; F2 = [Fx2,Fy2,Fz2];
 
-%% Guardado de datos
+%% Guardado de datos en coordenadas globales
 % Derecha
-Datos.Pasada.FuerzasArticulares.Tobillo.Derecho.x         = F5(:,1); 
-Datos.Pasada.FuerzasArticulares.Tobillo.Derecho.y         = F5(:,2);
-Datos.Pasada.FuerzasArticulares.Tobillo.Derecho.z         = F5(:,3);
+Datos.Pasada.FuerzasArticulares.Tobillo.Derecho.Fx         = F5(:,1); 
+Datos.Pasada.FuerzasArticulares.Tobillo.Derecho.Fy         = F5(:,2);
+Datos.Pasada.FuerzasArticulares.Tobillo.Derecho.Fz         = F5(:,3);
 
-Datos.Pasada.FuerzasArticulares.Rodilla.Derecha.x      = F3(:,1);
-Datos.Pasada.FuerzasArticulares.Rodilla.Derecha.y      = F3(:,2);
-Datos.Pasada.FuerzasArticulares.Rodilla.Derecha.z      = F3(:,3);
+Datos.Pasada.FuerzasArticulares.Rodilla.Derecha.Fx      = F3(:,1);
+Datos.Pasada.FuerzasArticulares.Rodilla.Derecha.Fy      = F3(:,2);
+Datos.Pasada.FuerzasArticulares.Rodilla.Derecha.Fz      = F3(:,3);
 
-Datos.Pasada.FuerzasArticulares.Cadera.Derecha.x       = F1(:,1);
-Datos.Pasada.FuerzasArticulares.Cadera.Derecha.y       = F1(:,2);
-Datos.Pasada.FuerzasArticulares.Cadera.Derecha.z       = F1(:,3);
+Datos.Pasada.FuerzasArticulares.Cadera.Derecha.Fx       = F1(:,1);
+Datos.Pasada.FuerzasArticulares.Cadera.Derecha.Fy       = F1(:,2);
+Datos.Pasada.FuerzasArticulares.Cadera.Derecha.Fz       = F1(:,3);
 
 % Izquierda
-Datos.Pasada.FuerzasArticulares.Tobillo.Izquierdo.x       = F6(:,1);
-Datos.Pasada.FuerzasArticulares.Tobillo.Izquierdo.y       = F6(:,2);
-Datos.Pasada.FuerzasArticulares.Tobillo.Izquierdo.z       = F6(:,3);
+Datos.Pasada.FuerzasArticulares.Tobillo.Izquierdo.Fx       = F6(:,1);
+Datos.Pasada.FuerzasArticulares.Tobillo.Izquierdo.Fy       = F6(:,2);
+Datos.Pasada.FuerzasArticulares.Tobillo.Izquierdo.Fz       = F6(:,3);
 
-Datos.Pasada.FuerzasArticulares.Rodilla.Izquierda.x      = F4(:,1);
-Datos.Pasada.FuerzasArticulares.Rodilla.Izquierda.y      = F4(:,2);
-Datos.Pasada.FuerzasArticulares.Rodilla.Izquierda.z      = F4(:,3);
+Datos.Pasada.FuerzasArticulares.Rodilla.Izquierda.Fx      = F4(:,1);
+Datos.Pasada.FuerzasArticulares.Rodilla.Izquierda.Fy      = F4(:,2);
+Datos.Pasada.FuerzasArticulares.Rodilla.Izquierda.Fz      = F4(:,3);
 
-Datos.Pasada.FuerzasArticulares.Cadera.Izquierda.x       = F2(:,1);
-Datos.Pasada.FuerzasArticulares.Cadera.Izquierda.y       = F2(:,2);
-Datos.Pasada.FuerzasArticulares.Cadera.Izquierda.z       = F2(:,3);
+Datos.Pasada.FuerzasArticulares.Cadera.Izquierda.Fx       = F2(:,1);
+Datos.Pasada.FuerzasArticulares.Cadera.Izquierda.Fy       = F2(:,2);
+Datos.Pasada.FuerzasArticulares.Cadera.Izquierda.Fz       = F2(:,3);
 
 %% Proyección a ejes articulares (anatómicos)
 SCA = Datos.Pasada.SistemaCoordenadoAnatomico;
