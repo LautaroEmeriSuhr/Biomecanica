@@ -10,8 +10,6 @@ function Datos = CalculoMomentosArticulares(Datos)
 %
 % Numeracion apunte: 1 MusloD 2 MusloI 3 PiernaD 4 PiernaI 5 PieD 6 PieI
 %
-% DerechaPlataforma1 no se usa aca: la GRF ya viene ruteada por lado en
-% Datos.Pasada.GRF.Derecho/.Izquierdo. Se mantiene por paridad de firma.
 
 % ---------------------------------------------------------------------
 % PIE DERECHO  (segmento 5)   F_D = 0 ; F_A = GRF ; M_A = [0 0 Tz]
