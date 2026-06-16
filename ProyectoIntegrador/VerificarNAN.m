@@ -1,11 +1,11 @@
 function [Datos,HayNAN,QueMarcaEsNAN,Nombres] = VerificarNAN(Datos);
 HayNAN = false;
-subnivel=fieldnames(Datos.Pasada.Marcadores.Crudos.Valores);
+subnivel=fieldnames(Datos.Pasada.Marcadores.Valores);
 NumeroDeElementos=size(subnivel,1);
 QueMarcaEsNAN= zeros(NumeroDeElementos,1);
 QueMarcaEsNAN=logical(QueMarcaEsNAN);
 Nombres = subnivel;
-for cont=1:NumeroDeElementos
+for cont=19:NumeroDeElementos
     sub=char(subnivel{cont});
     variable= (sprintf('%s%s','Datos.Pasada.Marcadores.Valores.',sub));
     Coordenada = eval(variable);
@@ -16,9 +16,9 @@ for cont=1:NumeroDeElementos
      else
         QueMarcaEsNAN(cont)=true; 
         HayNAN = true;
-        Datos.Pasada.Marcadores.Crudos.Valores = rmfield(Datos.Pasada.Marcadores.Crudos.Valores,sub);
+        Datos.Pasada.Marcadores.Valores = rmfield(Datos.Pasada.Marcadores.Valores,sub);
         Coordenada(isnan(Coordenada))=0;
-        Datos.Pasada.Marcadores.Crudos.Valores.(sprintf('%s',sub))=Coordenada;
+        Datos.Pasada.Marcadores.Valores.(sprintf('%s',sub))=Coordenada;
     end
 end
 

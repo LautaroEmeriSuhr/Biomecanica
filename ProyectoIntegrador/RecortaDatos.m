@@ -2,8 +2,8 @@
 %--------------------------------------------------------------------------
 function [Datos] = RecortaDatos(Datos,PrimerMuestra,UltimaMuestra);
 subnivel=fieldnames(Datos.Pasada.Marcadores.Valores);
-tamano=size(subnivel)
-CantidadFilas= tamano(1)
+tamano=size(subnivel);
+CantidadFilas= tamano(1);
 for cont=1:CantidadFilas
     sub=char(subnivel{cont});
     
@@ -13,5 +13,4 @@ for cont=1:CantidadFilas
     
     Datos.Pasada.Marcadores.Valores.(sprintf('%s',sub))=Coordenada(PrimerMuestra:UltimaMuestra,:);
 end
-
 

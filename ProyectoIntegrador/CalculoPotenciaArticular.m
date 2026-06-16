@@ -1,0 +1,194 @@
+function Datos = CalculoPotenciaArticular(Datos)
+
+Omega    = Datos.Pasada.VelocidadAngular;
+Momentos = Datos.Pasada.MomentosArticulares;
+SCA      = Datos.Pasada.SistemaCoordenadoAnatomico;
+
+%% ===================== CADERA DERECHA  (pelvis -> muslo) =====================
+iMus = SCA.Muslo.Derecho.i; jMus = SCA.Muslo.Derecho.j; kMus = SCA.Muslo.Derecho.k;
+iP   = SCA.Pelvis.i;        jP   = SCA.Pelvis.j;         kP   = SCA.Pelvis.k;
+wDist = Omega.Muslo.Derecho.wx.*iMus + Omega.Muslo.Derecho.wy.*jMus + Omega.Muslo.Derecho.wz.*kMus;
+wProx = Omega.Pelvis.wx.*iP + Omega.Pelvis.wy.*jP + Omega.Pelvis.wz.*kP;
+M  = Momentos.Cadera.Derecha;
+Mg = M.Mx.*iMus + M.My.*jMus + M.Mz.*kMus;
+[fe,aa,rie] = potencia3(Mg, wDist, wProx, kP, iMus);        % e1=k_pelvis, e3=i_muslo
+Datos.Pasada.PotenciaArticular.Cadera.Derecha.FlexExt   = fe;
+Datos.Pasada.PotenciaArticular.Cadera.Derecha.AbdAdd    = aa;
+Datos.Pasada.PotenciaArticular.Cadera.Derecha.RotIntExt = rie;
+
+Psum = fe + aa + rie;
+
+%% ===================== RODILLA DERECHA  (muslo -> pierna) =====================
+iMus = SCA.Muslo.Derecho.i;  jMus = SCA.Muslo.Derecho.j;  kMus = SCA.Muslo.Derecho.k;
+iPi  = SCA.Pierna.Derecha.i; jPi  = SCA.Pierna.Derecha.j; kPi  = SCA.Pierna.Derecha.k;
+wDist = Omega.Pierna.Derecha.wx.*iPi + Omega.Pierna.Derecha.wy.*jPi + Omega.Pierna.Derecha.wz.*kPi;
+wProx = Omega.Muslo.Derecho.wx.*iMus + Omega.Muslo.Derecho.wy.*jMus + Omega.Muslo.Derecho.wz.*kMus;
+M  = Momentos.Rodilla.Derecha;
+Mg = M.Mx.*iPi + M.My.*jPi + M.Mz.*kPi;
+[fe,aa,rie] = potencia3(Mg, wDist, wProx, kMus, iPi);       % e1=k_muslo, e3=i_pierna
+Datos.Pasada.PotenciaArticular.Rodilla.Derecha.FlexExt   = fe;
+Datos.Pasada.PotenciaArticular.Rodilla.Derecha.AbdAdd    = aa;
+Datos.Pasada.PotenciaArticular.Rodilla.Derecha.RotIntExt = rie;
+
+%% ===================== TOBILLO DERECHO  (pierna -> pie) =====================
+iPi  = SCA.Pierna.Derecha.i; jPi  = SCA.Pierna.Derecha.j; kPi  = SCA.Pierna.Derecha.k;
+iPie = SCA.Pie.Derecho.i;    jPie = SCA.Pie.Derecho.j;    kPie = SCA.Pie.Derecho.k;
+wDist = Omega.Pie.Derecho.wx.*iPie + Omega.Pie.Derecho.wy.*jPie + Omega.Pie.Derecho.wz.*kPie;
+wProx = Omega.Pierna.Derecha.wx.*iPi + Omega.Pierna.Derecha.wy.*jPi + Omega.Pierna.Derecha.wz.*kPi;
+M  = Momentos.Tobillo.Derecho;
+Mg = M.Mx.*iPie + M.My.*jPie + M.Mz.*kPie;
+[fe,aa,rie] = potencia3(Mg, wDist, wProx, kPi, iPie);       % e1=k_pierna, e3=i_pie
+Datos.Pasada.PotenciaArticular.Tobillo.Derecho.FlexExt   = fe;
+Datos.Pasada.PotenciaArticular.Tobillo.Derecho.AbdAdd    = aa;
+Datos.Pasada.PotenciaArticular.Tobillo.Derecho.RotIntExt = rie;
+
+%% ===================== CADERA IZQUIERDA  (pelvis -> muslo) =====================
+iMus = SCA.Muslo.Izquierdo.i; jMus = SCA.Muslo.Izquierdo.j; kMus = SCA.Muslo.Izquierdo.k;
+iP   = SCA.Pelvis.i;          jP   = SCA.Pelvis.j;           kP   = SCA.Pelvis.k;
+wDist = Omega.Muslo.Izquierdo.wx.*iMus + Omega.Muslo.Izquierdo.wy.*jMus + Omega.Muslo.Izquierdo.wz.*kMus;
+wProx = Omega.Pelvis.wx.*iP + Omega.Pelvis.wy.*jP + Omega.Pelvis.wz.*kP;
+M  = Momentos.Cadera.Izquierda;
+Mg = M.Mx.*iMus + M.My.*jMus + M.Mz.*kMus;
+[fe,aa,rie] = potencia3(Mg, wDist, wProx, kP, iMus);
+Datos.Pasada.PotenciaArticular.Cadera.Izquierda.FlexExt   = fe;
+Datos.Pasada.PotenciaArticular.Cadera.Izquierda.AbdAdd    = aa;
+Datos.Pasada.PotenciaArticular.Cadera.Izquierda.RotIntExt = rie;
+
+%% ===================== RODILLA IZQUIERDA  (muslo -> pierna) =====================
+iMus = SCA.Muslo.Izquierdo.i;  jMus = SCA.Muslo.Izquierdo.j;  kMus = SCA.Muslo.Izquierdo.k;
+iPi  = SCA.Pierna.Izquierda.i; jPi  = SCA.Pierna.Izquierda.j; kPi  = SCA.Pierna.Izquierda.k;
+wDist = Omega.Pierna.Izquierda.wx.*iPi + Omega.Pierna.Izquierda.wy.*jPi + Omega.Pierna.Izquierda.wz.*kPi;
+wProx = Omega.Muslo.Izquierdo.wx.*iMus + Omega.Muslo.Izquierdo.wy.*jMus + Omega.Muslo.Izquierdo.wz.*kMus;
+M  = Momentos.Rodilla.Izquierda;
+Mg = M.Mx.*iPi + M.My.*jPi + M.Mz.*kPi;
+[fe,aa,rie] = potencia3(Mg, wDist, wProx, kMus, iPi);
+Datos.Pasada.PotenciaArticular.Rodilla.Izquierda.FlexExt   = fe;
+Datos.Pasada.PotenciaArticular.Rodilla.Izquierda.AbdAdd    = aa;
+Datos.Pasada.PotenciaArticular.Rodilla.Izquierda.RotIntExt = rie;
+
+%% ===================== TOBILLO IZQUIERDO  (pierna -> pie) =====================
+iPi  = SCA.Pierna.Izquierda.i; jPi  = SCA.Pierna.Izquierda.j; kPi  = SCA.Pierna.Izquierda.k;
+iPie = SCA.Pie.Izquierdo.i;    jPie = SCA.Pie.Izquierdo.j;    kPie = SCA.Pie.Izquierdo.k;
+wDist = Omega.Pie.Izquierdo.wx.*iPie + Omega.Pie.Izquierdo.wy.*jPie + Omega.Pie.Izquierdo.wz.*kPie;
+wProx = Omega.Pierna.Izquierda.wx.*iPi + Omega.Pierna.Izquierda.wy.*jPi + Omega.Pierna.Izquierda.wz.*kPi;
+M  = Momentos.Tobillo.Izquierdo;
+Mg = M.Mx.*iPie + M.My.*jPie + M.Mz.*kPie;
+[fe,aa,rie] = potencia3(Mg, wDist, wProx, kPi, iPie);
+Datos.Pasada.PotenciaArticular.Tobillo.Izquierdo.FlexExt   = fe;
+Datos.Pasada.PotenciaArticular.Tobillo.Izquierdo.AbdAdd    = aa;
+Datos.Pasada.PotenciaArticular.Tobillo.Izquierdo.RotIntExt = rie;
+
+%% ============================================================
+%  GRAFICACION: Potencias articulares en ejes anatómicos
+%% ============================================================
+x = linspace(0, 100, 100);
+ciclo_derecho   = Datos.eventos.FrameRHS2 - Datos.eventos.FrameRHS1;
+ciclo_izquierdo = Datos.eventos.FrameLHS2 - Datos.eventos.FrameLHS1;
+x_RTO = (Datos.eventos.FrameRTO - Datos.eventos.FrameRHS1) / ciclo_derecho   * 100;
+x_LTO = (Datos.eventos.FrameLTO - Datos.eventos.FrameLHS1) / ciclo_izquierdo * 100;
+rng_R = Datos.eventos.FrameRHS1 : Datos.eventos.FrameRHS2;
+rng_L = Datos.eventos.FrameLHS1 : Datos.eventos.FrameLHS2;
+
+% Atajos a las potencias articulares
+cadD = Datos.Pasada.PotenciaArticular.Cadera.Derecha;
+cadI = Datos.Pasada.PotenciaArticular.Cadera.Izquierda;
+rodD = Datos.Pasada.PotenciaArticular.Rodilla.Derecha;
+rodI = Datos.Pasada.PotenciaArticular.Rodilla.Izquierda;
+tobD = Datos.Pasada.PotenciaArticular.Tobillo.Derecho;
+tobI = Datos.Pasada.PotenciaArticular.Tobillo.Izquierdo;
+
+% Filas: articulación. Columnas (pares der/izq): flexext, abdadd, rotie
+filas = {
+'Cadera',   -cadD.FlexExt, cadI.FlexExt, cadD.AbdAdd, cadI.AbdAdd, cadD.RotIntExt, cadI.RotIntExt;
+'Rodilla',  -rodD.FlexExt, rodI.FlexExt, rodD.AbdAdd, rodI.AbdAdd, rodD.RotIntExt, rodI.RotIntExt;
+'Tobillo',  -tobD.FlexExt, tobI.FlexExt, tobD.RotIntExt, tobI.RotIntExt, -tobD.AbdAdd, tobI.AbdAdd
+};
+
+ejesP = {'P Flex/Ext [W/kg]', 'P Abd/Add [W/kg]', 'P Rot Int/Ext [W/kg]'};
+
+figure('Name', 'Potencias articulares (ejes anatómicos)')
+sgtitle('Potencias Articulares Netas - Ciclo de Marcha  (+Gen / -Abs)', ...
+        'FontSize', 14, 'FontWeight', 'bold')
+
+masa = Datos.antropometria.PESO.Valor;   % [kg]
+
+for f = 1:size(filas, 1)
+    art = filas{f, 1};
+    for c = 1:3
+        % Saltar Tobillo columna del medio (igual que en momentos)
+        if f == 3 && c == 2
+            continue
+        end
+        der = filas{f, 2 + (c-1)*2} / masa;
+        izq = filas{f, 3 + (c-1)*2} / masa;
+        subplot(3, 3, (f-1)*3 + c)
+        graficarFuerzaArticulares(x, ...
+            InterpolaA100Muestras(der(rng_R)), ...
+            InterpolaA100Muestras(izq(rng_L)), ...
+            x_RTO, x_LTO, ['Potencia ', art]);
+        % Tobillo columna 3: la etiqueta corresponde a Abd/Add
+        if f == 3 && c == 3
+            ylabel('P Abd/Add [W/kg]')
+        else
+            ylabel(ejesP{c})
+        end
+    end
+
+end
+
+
+
+% --- reconstruí Mg y dw como en CalculoPotenciaArticular ---
+SCA = Datos.Pasada.SistemaCoordenadoAnatomico;
+Om  = Datos.Pasada.VelocidadAngular;
+iMus = SCA.Muslo.Derecho.i; jMus = SCA.Muslo.Derecho.j; kMus = SCA.Muslo.Derecho.k;
+iP   = SCA.Pelvis.i;        jP   = SCA.Pelvis.j;        kP   = SCA.Pelvis.k;
+wDist = Om.Muslo.Derecho.wx.*iMus + Om.Muslo.Derecho.wy.*jMus + Om.Muslo.Derecho.wz.*kMus;
+wProx = Om.Pelvis.wx.*iP + Om.Pelvis.wy.*jP + Om.Pelvis.wz.*kP;
+dw = wDist - wProx;
+M  = Datos.Pasada.MomentosArticulares.Cadera.Derecha;
+Mg = M.Mx.*iMus + M.My.*jMus + M.Mz.*kMus;
+e1 = kP;  e3 = iMus;
+
+% (A) potencia TOTAL (no depende de la descomposición en ejes)
+masa = Datos.antropometria.PESO.Valor;
+Ptot = dot(Mg, dw, 2) / masa;
+figure; plot(linspace(0,100,100), InterpolaA100Muestras(Ptot(Datos.eventos.FrameRHS1:Datos.eventos.FrameRHS2)));
+hold on;
+
+plot(linspace(0,100,100), InterpolaA100Muestras(Datos.Pasada.PotenciaArticular.Cadera.Derecha.FlexExt(Datos.eventos.FrameRHS1:Datos.eventos.FrameRHS2))/masa);
+title('Potencia total cadera D — comparar contra flex/ext de referencia');
+
+% (B) en qué eje cae la velocidad relativa
+fprintf('|dw.e1| (flexion, deberia dominar) max = %.2f rad/s\n', max(abs(dot(dw,e1,2))));
+fprintf('|dw.e3| (rotacion, deberia ser chica) max = %.2f rad/s\n', max(abs(dot(dw,e3,2))));
+
+% (C) ortogonalidad de los ejes (deberia ~0)
+fprintf('mean|e1.e3| = %.3f\n', mean(abs(dot(e1,e3,2))));
+
+Ptot = dot(Mg, dw, 2);
+
+fprintf('Max discrepancia fe+aa+rie vs Ptot: %.4f W\n', max(abs(Ptot - Psum)));
+
+end
+
+%% ===================== funcion local =====================
+function [Pfe, Paa, Prie] = potencia3(Mg, wDist, wProx, e1, e3)
+% Sistema flotante Grood-Suntay.
+% e1 = k_proximal, e3 = i_distal, e2 = abd/add (flotante, normalizado).
+
+e2raw = cross(e1, e3, 2);
+norme2 = sqrt(sum(e2raw.^2, 2));
+
+% Advertir si la no-ortogonalidad es severa
+if any(norme2 < 0.85)
+    warning('potencia3: |e2| < 0.85 en %d frames — revisar SCA del tobillo.', sum(norme2 < 0.85));
+end
+
+e2 = e2raw ./ norme2;
+
+dw = wDist - wProx;
+Pfe  = dot(Mg, e1, 2) .* dot(dw, e1, 2);
+Paa  = dot(Mg, e2, 2) .* dot(dw, e2, 2);
+Prie = dot(Mg, e3, 2) .* dot(dw, e3, 2);
+end
