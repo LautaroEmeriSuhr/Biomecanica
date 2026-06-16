@@ -1,0 +1,9 @@
+function m = hiddenmethods(this)
+%HIDDENMETHODS   Return the hidden methods.
+
+%   Copyright 2006 The MathWorks, Inc.
+
+% Return the hidden methods of the current fdesign.
+m = hiddenmethods(this.CurrentFDesign);
+
+% [EOF]
