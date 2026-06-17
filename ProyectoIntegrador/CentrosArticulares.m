@@ -38,6 +38,11 @@ function Datos = CentrosArticulares(Datos)
 
     Datos.Pasada.CentrosArticulares.Cadera.Derecha   = p_cadera_derecha;
     Datos.Pasada.CentrosArticulares.Cadera.Izquierda = p_cadera_izquierda;
+    
+offR = dot(p_cadera_derecha   - PmedioAsis, epy, 2);
+offL = dot(p_cadera_izquierda - PmedioAsis, epy, 2);
+fprintf('Offset lateral der vs izq: %.4f  %.4f m\n', mean(offR), mean(offL));
+
 %% Centro Articular Rodilla Derecha
 
 p_rodilla_derecha = Datos.Pasada.Marcadores.Valores.r_knee_1 ...

@@ -6,49 +6,49 @@ function Datos = CalculoMomentosArticulares(Datos)
 %
 % Numeracion apunte: 1 MusloD 2 MusloI 3 PiernaD 4 PiernaI 5 PieD 6 PieI
 %
+
+
+[Datos,HayNAN,QueMarcaEsNAN,Nombres] = VerificarNAN(Datos);
+
+
 % ---------------------------------------------------------------------
 % PIE DERECHO  (segmento 5)   F_D = 0 ; F_A = GRF ; M_A = [0 0 Tz]
 % ---------------------------------------------------------------------
-% nro de muestras de marcador 
-n = size(Datos.Pasada.ParametrosInerciales.Pie.Derecho.CoM, 1);
+n = length(Datos.Pasada.AceleracionLineal.Pie.Derecho.ax);   % 560
 
-CoM_pie_D = Datos.Pasada.ParametrosInerciales.Pie.Derecho.CoM;     % [n x 3] m, global
+CoM_pie_D = Datos.Pasada.ParametrosInerciales.Pie.Derecho.CoM;     % [n x 3] m
 
-% Fuerza PROXIMAL del pie = fuerza de tobillo, YA calculada (global)
+% Fuerza PROXIMAL del pie = fuerza de tobillo, ya calculada (global)
 F_tobillo_D = [Datos.Pasada.FuerzasArticulares.Tobillo.Derecho.Fx, ...
                Datos.Pasada.FuerzasArticulares.Tobillo.Derecho.Fy, ...
                Datos.Pasada.FuerzasArticulares.Tobillo.Derecho.Fz];
 
-% --- Free moment desde la plataforma (a la frecuencia de la plataforma) ---
-Fx1  = Datos.Pasada.Fuerzas.Plataforma1.Valores.Fx1;    % N
-Fy1  = Datos.Pasada.Fuerzas.Plataforma1.Valores.Fy1;    % N
-Mz1  = Datos.Pasada.Fuerzas.Plataforma1.Valores.Mz1;    % N·mm
-CP1x = Datos.Pasada.Fuerzas.Plataforma1.Valores.CP1x;   % mm
-CP1y = Datos.Pasada.Fuerzas.Plataforma1.Valores.CP1y;   % mm
+% --- GRF: reuso la YA alineada en CalculoFuerzasArticulares ---
+F_plataforma_derecha = Datos.Pasada.GRF.Derecha;     % [n x 3] N
 
+% --- Free moment: MISMO anclaje que la GRF, sobre el Mz CRUDO de plataforma ---
+%     alinearMomento es el gemelo escalar de alinearGRF.
+Mz_der = alinearMomento(Datos.Pasada.Fuerzas.Plataforma1.Valores.Mz1, ...
+                        n, Datos.eventos.FrameRHS1, Datos.eventos.FrameRTO) / 1000;  % N·mm -> N·m
 
-Tz_raw = Mz1 - CP1x.*Fy1 + CP1y.*Fx1;  
-CP_plat = [CP1x/1000, CP1y/1000, zeros(size(CP1x))];
+M_plataforma_d = [zeros(n,2), Mz_der];               % Tz = [0 0 Mz]   [n x 3]
 
-% >>> ALINEAR a n muestras (como con la GRF) antes de seguir <
-F_GRF_D = Datos.Pasada.GRF.Derecha;                     % [n x 3] ya alineada
+CP1x = alinearMomento(Datos.Pasada.Fuerzas.Plataforma1.Valores.CP1x, ...
+                      n , Datos.eventos.FrameRHS1, Datos.eventos.FrameRTO);
 
-% Anclar el bloque de apoyo a [RHS1:RTO] sobre la grilla de n, y pasar a N·m
-Tz_D = alinearMomento(Tz_raw, n, ...
-            Datos.eventos.FrameRHS1, Datos.eventos.FrameRTO) / 1000;   % [n x 1] N·m
+CP1y = alinearMomento(Datos.Pasada.Fuerzas.Plataforma1.Valores.CP1y, ...
+                      n , Datos.eventos.FrameRHS1, Datos.eventos.FrameRTO);
 
-CP_D = alinearMatriz(CP_plat, n, Datos.eventos.FrameRHS1, Datos.eventos.FrameRTO);
-
-MA_D = [zeros(size(Tz_D)), zeros(size(Tz_D)), Tz_D];    % T_Plate1 = [0 0 Tz]
+CentroPresionDerecho = [CP1x CP1y zeros(n,1)];
 
 % Brazos de momento (desde el CoM del pie)
-rP_pie_D = Datos.Pasada.CentrosArticulares.Tobillo.Derecho - CoM_pie_D;  % p_Prx.5 -> tobillo
-rA_pie_D = CP_D - CoM_pie_D;                                             % p_Dis.5 -> CP
+rProx_pie_D = Datos.Pasada.CentrosArticulares.Tobillo.Derecho - CoM_pie_D;
+rDis_pie_D  = CentroPresionDerecho - CoM_pie_D;
 
 % Momento residual del pie en GLOBAL  (M_Res.5)
-MR_pie_D = MA_D ...
-         + cross(rP_pie_D, F_tobillo_D, 2) ...
-         + cross(rA_pie_D, F_GRF_D,     2);
+MR_pie_D = M_plataforma_d ...
+         + cross(rProx_pie_D, F_tobillo_D,          2) ...
+         + cross(rDis_pie_D,  F_plataforma_derecha, 2);
 
 % Versores anatomicos del pie
 i_pie_D = Datos.Pasada.SistemaCoordenadoAnatomico.Pie.Derecho.i;
@@ -65,8 +65,12 @@ dHdt_pie_D = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Pie.Derecho.dHx_dt,
               Datos.Pasada.DerivadaCantidadMovimientoAngular.Pie.Derecho.dHy_dt, ...
               Datos.Pasada.DerivadaCantidadMovimientoAngular.Pie.Derecho.dHz_dt];
 
-M_tobillo_D = dHdt_pie_D - MR_pie_D_local;
- 
+M_tobillo_D_local = dHdt_pie_D - MR_pie_D_local;
+
+M_tobillo_D_global = M_tobillo_D_local(:,1) .* i_pie_D ...
+                   + M_tobillo_D_local(:,2) .* j_pie_D ...
+                   + M_tobillo_D_local(:,3) .* k_pie_D;
+
 % ---------------------------------------------------------------------
 % PIERNA DERECHA  (segmento 3)   F_D = -F_tobillo ; F_A = 0 ; M_A = 0
 % ---------------------------------------------------------------------
@@ -77,36 +81,25 @@ F_rodilla_D = [Datos.Pasada.FuerzasArticulares.Rodilla.Derecha.Fx, ...
                Datos.Pasada.FuerzasArticulares.Rodilla.Derecha.Fy, ...
                Datos.Pasada.FuerzasArticulares.Rodilla.Derecha.Fz];
 
-% Fuerza DISTAL de la pierna = -fuerza de tobillo (3a ley)
-F_dist_pierna_D = -F_tobillo_D;
-
 % Brazos de momento (desde el CoM de la pierna)
-rP_pierna_D = Datos.Pasada.CentrosArticulares.Rodilla.Derecha - CoM_pierna_D;  % p_Prx.3 -> rodilla
-rD_pierna_D = Datos.Pasada.CentrosArticulares.Tobillo.Derecho - CoM_pierna_D;  % p_Dis.3 -> tobillo
+rP_pierna_D = Datos.Pasada.CentrosArticulares.Rodilla.Derecha - CoM_pierna_D;  
+rD_pierna_D = Datos.Pasada.CentrosArticulares.Tobillo.Derecho - CoM_pierna_D;  
 
 % Momento residual de la pierna en GLOBAL  (M_Res.3 = solo terminos de fuerza)
-MR_pierna_D = cross(rP_pierna_D, F_rodilla_D,     2) ...
-            + cross(rD_pierna_D, F_dist_pierna_D, 2);
+MR_pierna_D = - M_tobillo_D_global ... 
+              - cross(rD_pierna_D, F_tobillo_D, 2) ...
+              + cross(rP_pierna_D, F_rodilla_D, 2);
 
 % Versores anatomicos de la pierna
 i_pierna_D = Datos.Pasada.SistemaCoordenadoAnatomico.Pierna.Derecha.i;
 j_pierna_D = Datos.Pasada.SistemaCoordenadoAnatomico.Pierna.Derecha.j;
 k_pierna_D = Datos.Pasada.SistemaCoordenadoAnatomico.Pierna.Derecha.k;
 
-% Residual rotado a LOCAL de la pierna:  i3·MRes , j3·MRes , k3·MRes
+
+% Residual rotado a LOCAL:  i3·MRes , j3·MRes , k3·MRes
 MR_pierna_D_local = [dot(MR_pierna_D, i_pierna_D, 2), ...
                      dot(MR_pierna_D, j_pierna_D, 2), ...
                      dot(MR_pierna_D, k_pierna_D, 2)];
-
-% --- Momento DISTAL de la pierna = -M_tobillo, llevado a LOCAL de la pierna ---
-% 1) -M_tobillo (local del PIE) -> GLOBAL  (combinacion lineal con versores del pie)
-neg_Mtob_global = (-M_tobillo_D(:,1)).*i_pie_D ...
-                + (-M_tobillo_D(:,2)).*j_pie_D ...
-                + (-M_tobillo_D(:,3)).*k_pie_D;
-% 2) GLOBAL -> LOCAL de la pierna  (producto punto con versores de la pierna)
-MD_pierna_D_local = [dot(neg_Mtob_global, i_pierna_D, 2), ...
-                     dot(neg_Mtob_global, j_pierna_D, 2), ...
-                     dot(neg_Mtob_global, k_pierna_D, 2)];
 
 % dH/dt de la pierna (LOCAL)
 dHdt_pierna_D = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Pierna.Derecha.dHx_dt, ...
@@ -114,8 +107,11 @@ dHdt_pierna_D = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Pierna.Derecha.d
                  Datos.Pasada.DerivadaCantidadMovimientoAngular.Pierna.Derecha.dHz_dt];
 
 % Momento NETO de RODILLA (M_R.Knee) = dH/dt_local - M_D_local - MRes_local
-M_rodilla_D = dHdt_pierna_D - MD_pierna_D_local - MR_pierna_D_local;
+M_rodilla_D_local = dHdt_pierna_D - MR_pierna_D_local;
 
+M_rodilla_D_global = M_rodilla_D_local(:,1) .* i_pierna_D ...
+                   + M_rodilla_D_local(:,2) .* j_pierna_D ...
+                   + M_rodilla_D_local(:,3) .* k_pierna_D;
 
 % ---------------------------------------------------------------------
 % MUSLO DERECHO  (segmento 1)   F_D = -F_rodilla ; F_A = 0 ; M_A = 0
@@ -127,122 +123,112 @@ F_cadera_D = [Datos.Pasada.FuerzasArticulares.Cadera.Derecha.Fx, ...
               Datos.Pasada.FuerzasArticulares.Cadera.Derecha.Fy, ...
               Datos.Pasada.FuerzasArticulares.Cadera.Derecha.Fz];
 
-% Fuerza DISTAL del muslo = -fuerza de rodilla (3a ley)
-F_dist_muslo_D = -F_rodilla_D;
-
 % Brazos de momento (desde el CoM del muslo)
-rP_muslo_D = Datos.Pasada.CentrosArticulares.Cadera.Derecha  - CoM_muslo_D;  % p_Prx.1 -> cadera
-rD_muslo_D = Datos.Pasada.CentrosArticulares.Rodilla.Derecha - CoM_muslo_D;  % p_Dis.1 -> rodilla
+rP_muslo_D = Datos.Pasada.CentrosArticulares.Cadera.Derecha  - CoM_muslo_D;  
+rD_muslo_D = Datos.Pasada.CentrosArticulares.Rodilla.Derecha - CoM_muslo_D;  
 
 % Momento residual del muslo en GLOBAL  (M_Res.1)
-MR_muslo_D = cross(rP_muslo_D, F_cadera_D,     2) ...
-           + cross(rD_muslo_D, F_dist_muslo_D, 2);
+MR_cadera_D_global = - M_rodilla_D_global ... 
+                    - cross(rD_muslo_D, F_rodilla_D, 2) ...
+                    + cross(rP_muslo_D, F_cadera_D,  2);
 
 % Versores anatomicos del muslo
 i_muslo_D = Datos.Pasada.SistemaCoordenadoAnatomico.Muslo.Derecho.i;
 j_muslo_D = Datos.Pasada.SistemaCoordenadoAnatomico.Muslo.Derecho.j;
 k_muslo_D = Datos.Pasada.SistemaCoordenadoAnatomico.Muslo.Derecho.k;
 
-% Residual rotado a LOCAL del muslo
-MR_muslo_D_local = [dot(MR_muslo_D, i_muslo_D, 2), ...
-                    dot(MR_muslo_D, j_muslo_D, 2), ...
-                    dot(MR_muslo_D, k_muslo_D, 2)];
+% Residual rotado a LOCAL:  i3·MRes , j3·MRes , k3·MRes
+MR_cadera_D_local = [dot(MR_cadera_D_global, i_muslo_D, 2), ...
+                     dot(MR_cadera_D_global, j_muslo_D, 2), ...
+                     dot(MR_cadera_D_global, k_muslo_D, 2)];
 
-% --- Momento DISTAL del muslo = -M_rodilla, llevado a LOCAL del muslo ---
-% 1) -M_rodilla (local de la PIERNA) -> GLOBAL
-neg_Mrod_global = (-M_rodilla_D(:,1)).*i_pierna_D ...
-                + (-M_rodilla_D(:,2)).*j_pierna_D ...
-                + (-M_rodilla_D(:,3)).*k_pierna_D;
-% 2) GLOBAL -> LOCAL del muslo
-MD_muslo_D_local = [dot(neg_Mrod_global, i_muslo_D, 2), ...
-                    dot(neg_Mrod_global, j_muslo_D, 2), ...
-                    dot(neg_Mrod_global, k_muslo_D, 2)];
 
 % dH/dt del muslo (LOCAL)
 dHdt_muslo_D = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Muslo.Derecho.dHx_dt, ...
                 Datos.Pasada.DerivadaCantidadMovimientoAngular.Muslo.Derecho.dHy_dt, ...
                 Datos.Pasada.DerivadaCantidadMovimientoAngular.Muslo.Derecho.dHz_dt];
 
-% Momento NETO de CADERA (M_R.Hip) = dH/dt_local - M_D_local - MRes_local
-M_cadera_D = dHdt_muslo_D - MD_muslo_D_local - MR_muslo_D_local;
+% Momento NETO de CADERA (M_R.Hip) = dH/dt_local - MRes_local
+M_cadera_D_local = dHdt_muslo_D - MR_cadera_D_local;
 
-% =====================================================================
-% GUARDAR LADO DERECHO
-% =====================================================================
-Datos.Pasada.MomentosArticulares.Tobillo.Derecho.Mx = M_tobillo_D(:,1);
-Datos.Pasada.MomentosArticulares.Tobillo.Derecho.My = M_tobillo_D(:,2);
-Datos.Pasada.MomentosArticulares.Tobillo.Derecho.Mz = M_tobillo_D(:,3);
+M_cadera_D_global = M_cadera_D_local(:,1) .* i_muslo_D ...
+                  + M_cadera_D_local(:,2) .* j_muslo_D ...
+                  + M_cadera_D_local(:,3) .* k_muslo_D;
 
-Datos.Pasada.MomentosArticulares.Rodilla.Derecha.Mx = M_rodilla_D(:,1);
-Datos.Pasada.MomentosArticulares.Rodilla.Derecha.My = M_rodilla_D(:,2);
-Datos.Pasada.MomentosArticulares.Rodilla.Derecha.Mz = M_rodilla_D(:,3);
+% % =====================================================================
+% % GUARDAR LADO DERECHO
+% % =====================================================================
+Datos.Pasada.MomentosArticulares.Tobillo.Derecho.Mx = M_tobillo_D_global(:,1);
+Datos.Pasada.MomentosArticulares.Tobillo.Derecho.My = M_tobillo_D_global(:,2);
+Datos.Pasada.MomentosArticulares.Tobillo.Derecho.Mz = M_tobillo_D_global(:,3);
 
-Datos.Pasada.MomentosArticulares.Cadera.Derecha.Mx  = M_cadera_D(:,1);
-Datos.Pasada.MomentosArticulares.Cadera.Derecha.My  = M_cadera_D(:,2);
-Datos.Pasada.MomentosArticulares.Cadera.Derecha.Mz  = M_cadera_D(:,3);
+Datos.Pasada.MomentosArticulares.Rodilla.Derecha.Mx = M_rodilla_D_global(:,1);
+Datos.Pasada.MomentosArticulares.Rodilla.Derecha.My = M_rodilla_D_global(:,2);
+Datos.Pasada.MomentosArticulares.Rodilla.Derecha.Mz = M_rodilla_D_global(:,3);
 
-% =====================================================================
-% PIE IZQUIERDO  (segmento 6)   F_D = 0 ; F_A = GRF ; M_A = [0 0 Tz]
-% =====================================================================
-n = size(Datos.Pasada.ParametrosInerciales.Pie.Izquierdo.CoM, 1);
+Datos.Pasada.MomentosArticulares.Cadera.Derecha.Mx  = M_cadera_D_global(:,1);
+Datos.Pasada.MomentosArticulares.Cadera.Derecha.My  = M_cadera_D_global(:,2);
+Datos.Pasada.MomentosArticulares.Cadera.Derecha.Mz  = M_cadera_D_global(:,3);
 
-CoM_pie_I = Datos.Pasada.ParametrosInerciales.Pie.Izquierdo.CoM;     % [n x 3] m, global
+% % =====================================================================
+% % PIE IZQUIERDO  (segmento 6)   F_D = 0 ; F_A = GRF ; M_A = [0 0 Tz]
+% % =====================================================================
+n = length(Datos.Pasada.AceleracionLineal.Pie.Izquierdo.ax);   % 560
 
-% Fuerza PROXIMAL del pie = fuerza de tobillo izquierdo, ya calculada (global)
+CoM_pie_I = Datos.Pasada.ParametrosInerciales.Pie.Izquierdo.CoM;     % [n x 3] m
+
+% Fuerza PROXIMAL del pie = fuerza de tobillo, ya calculada (global)
 F_tobillo_I = [Datos.Pasada.FuerzasArticulares.Tobillo.Izquierdo.Fx, ...
                Datos.Pasada.FuerzasArticulares.Tobillo.Izquierdo.Fy, ...
                Datos.Pasada.FuerzasArticulares.Tobillo.Izquierdo.Fz];
 
-% --- Free moment desde Plataforma2 ---
-Fx2  = Datos.Pasada.Fuerzas.Plataforma2.Valores.Fx2;    % N
-Fy2  = Datos.Pasada.Fuerzas.Plataforma2.Valores.Fy2;    % N
-Mz2  = Datos.Pasada.Fuerzas.Plataforma2.Valores.Mz2;    % N·mm
-CP2x = Datos.Pasada.Fuerzas.Plataforma2.Valores.CP2x;   % mm
-CP2y = Datos.Pasada.Fuerzas.Plataforma2.Valores.CP2y;   % mm
+% --- GRF: reuso la YA alineada en CalculoFuerzasArticulares ---
+F_plataforma_izquierda = Datos.Pasada.GRF.Izquierda;     % [n x 3] N
 
-Tz_raw_I = Mz2 - CP2x.*Fy2 + CP2y.*Fx2;                % N·mm  (Momento Libre)
+% --- Free moment: MISMO anclaje que la GRF, sobre el Mz CRUDO de plataforma ---
+%     alinearMomento es el gemelo escalar de alinearGRF.
+Mz_izq = alinearMomento(Datos.Pasada.Fuerzas.Plataforma2.Valores.Mz2, ...
+                        n, Datos.eventos.FrameLHS1, Datos.eventos.FrameLTO) / 1000;  % N·mm -> N·m
 
-% Punto de aplicacion (CP) en metros, Z = 0, marco global
-CP_plat_I = [CP2x/1000, CP2y/1000, zeros(size(CP2x))];  % [m]
+M_plataforma_i = [zeros(n,2), Mz_izq];               % Tz = [0 0 Mz]   [n x 3]
 
-% GRF izquierda ya alineada a n muestras
-F_GRF_I = Datos.Pasada.GRF.Izquierda;                   % [n x 3]
+CP2x = alinearMomento(Datos.Pasada.Fuerzas.Plataforma2.Valores.CP2x, ...
+                      n , Datos.eventos.FrameLHS1, Datos.eventos.FrameLTO);
 
-% Anclar bloque de apoyo izquierdo [LHS1:LTO] y pasar a N·m
-Tz_I = alinearMomento(Tz_raw_I, n, ...
-            Datos.eventos.FrameLHS1, Datos.eventos.FrameLTO) / 1000;   % [n x 1] N·m
+CP2y = alinearMomento(Datos.Pasada.Fuerzas.Plataforma2.Valores.CP2y, ...
+                      n , Datos.eventos.FrameLHS1, Datos.eventos.FrameLTO);
 
-CP_I = alinearMatriz(CP_plat_I, n, ...
-            Datos.eventos.FrameLHS1, Datos.eventos.FrameLTO);           % [n x 3]
+CentroPresionIzquierdo = [CP2x CP2y zeros(n,1)];
 
-MA_I = [zeros(size(Tz_I)), zeros(size(Tz_I)), Tz_I];    % T_Plate2 = [0 0 Tz]
+% Brazos de momento (desde el CoM del pie)
+rP_pie_I  = Datos.Pasada.CentrosArticulares.Tobillo.Izquierdo - CoM_pie_I;
+rD_pie_I  = CentroPresionIzquierdo                            - CoM_pie_I;
 
-% Brazos de momento (desde el CoM del pie izquierdo)
-rP_pie_I = Datos.Pasada.CentrosArticulares.Tobillo.Izquierdo - CoM_pie_I;  % p_Prx.6 -> tobillo
-rA_pie_I = CP_I - CoM_pie_I;                                                % p_Dis.6 -> CP
+% Momento residual del pie en GLOBAL  (M_Res.5)
+MR_pie_I_global = M_plataforma_i ...
+                + cross(rP_pie_I, F_tobillo_I,            2) ...
+                + cross(rD_pie_I, F_plataforma_izquierda, 2);
 
-% Momento residual del pie izquierdo en GLOBAL  (M_Res.6)
-MR_pie_I = MA_I ...
-         + cross(rP_pie_I, F_tobillo_I, 2) ...
-         + cross(rA_pie_I, F_GRF_I,     2);
-
-% Versores anatomicos del pie izquierdo
+% Versores anatomicos del pie
 i_pie_I = Datos.Pasada.SistemaCoordenadoAnatomico.Pie.Izquierdo.i;
 j_pie_I = Datos.Pasada.SistemaCoordenadoAnatomico.Pie.Izquierdo.j;
 k_pie_I = Datos.Pasada.SistemaCoordenadoAnatomico.Pie.Izquierdo.k;
 
-% Residual rotado a LOCAL del pie izquierdo
-MR_pie_I_local = [dot(MR_pie_I, i_pie_I, 2), ...
-                  dot(MR_pie_I, j_pie_I, 2), ...
-                  dot(MR_pie_I, k_pie_I, 2)];
+% Resultante rotado a LOCAL:  i5·MRes , j5·MRes , k5·MRes
+MR_pie_I_local = [dot(MR_pie_I_global, i_pie_I, 2), ...
+                  dot(MR_pie_I_global, j_pie_I, 2), ...
+                  dot(MR_pie_I_global, k_pie_I, 2)];
 
-% dH/dt del pie izquierdo (LOCAL)
+% Momento NETO del tobillo (M_R.Ankle) = dH/dt_local - MRes_local
 dHdt_pie_I = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Pie.Izquierdo.dHx_dt, ...
               Datos.Pasada.DerivadaCantidadMovimientoAngular.Pie.Izquierdo.dHy_dt, ...
               Datos.Pasada.DerivadaCantidadMovimientoAngular.Pie.Izquierdo.dHz_dt];
 
-% Momento NETO del tobillo izquierdo
-M_tobillo_I = dHdt_pie_I - MR_pie_I_local;
+M_tobillo_I_local = dHdt_pie_I - MR_pie_I_local;
+
+M_tobillo_I_global = M_tobillo_I_local(:,1) .* i_pie_I ...
+                   + M_tobillo_I_local(:,2) .* j_pie_I ...
+                   + M_tobillo_I_local(:,3) .* k_pie_I;
 
 % =====================================================================
 % PIERNA IZQUIERDA  (segmento 4)
@@ -254,16 +240,14 @@ F_rodilla_I = [Datos.Pasada.FuerzasArticulares.Rodilla.Izquierda.Fx, ...
                Datos.Pasada.FuerzasArticulares.Rodilla.Izquierda.Fy, ...
                Datos.Pasada.FuerzasArticulares.Rodilla.Izquierda.Fz];
 
-% Fuerza DISTAL de la pierna = -fuerza de tobillo izquierdo (3a ley)
-F_dist_pierna_I = -F_tobillo_I;
-
 % Brazos de momento (desde el CoM de la pierna izquierda)
-rP_pierna_I = Datos.Pasada.CentrosArticulares.Rodilla.Izquierda  - CoM_pierna_I;  % p_Prx.4 -> rodilla
-rD_pierna_I = Datos.Pasada.CentrosArticulares.Tobillo.Izquierdo  - CoM_pierna_I;  % p_Dis.4 -> tobillo
+rP_pierna_I = Datos.Pasada.CentrosArticulares.Rodilla.Izquierda  - CoM_pierna_I;  
+rD_pierna_I = Datos.Pasada.CentrosArticulares.Tobillo.Izquierdo  - CoM_pierna_I;  
 
 % Momento residual de la pierna izquierda en GLOBAL  (M_Res.4)
-MR_pierna_I = cross(rP_pierna_I, F_rodilla_I,      2) ...
-            + cross(rD_pierna_I, F_dist_pierna_I,  2);
+MR_pierna_I_global = - M_tobillo_I_global ...
+                     - cross(rD_pierna_I, F_tobillo_I,  2) ...
+                     + cross(rP_pierna_I, F_rodilla_I,  2);
 
 % Versores anatomicos de la pierna izquierda
 i_pierna_I = Datos.Pasada.SistemaCoordenadoAnatomico.Pierna.Izquierda.i;
@@ -271,19 +255,9 @@ j_pierna_I = Datos.Pasada.SistemaCoordenadoAnatomico.Pierna.Izquierda.j;
 k_pierna_I = Datos.Pasada.SistemaCoordenadoAnatomico.Pierna.Izquierda.k;
 
 % Residual rotado a LOCAL de la pierna izquierda
-MR_pierna_I_local = [dot(MR_pierna_I, i_pierna_I, 2), ...
-                     dot(MR_pierna_I, j_pierna_I, 2), ...
-                     dot(MR_pierna_I, k_pierna_I, 2)];
-
-% Momento DISTAL de la pierna izquierda = -M_tobillo_I, llevado a LOCAL de la pierna
-% 1) LOCAL del pie -> GLOBAL
-neg_Mtob_I_global = (-M_tobillo_I(:,1)).*i_pie_I ...
-                  + (-M_tobillo_I(:,2)).*j_pie_I ...
-                  + (-M_tobillo_I(:,3)).*k_pie_I;
-% 2) GLOBAL -> LOCAL de la pierna izquierda
-MD_pierna_I_local = [dot(neg_Mtob_I_global, i_pierna_I, 2), ...
-                     dot(neg_Mtob_I_global, j_pierna_I, 2), ...
-                     dot(neg_Mtob_I_global, k_pierna_I, 2)];
+MR_pierna_I_local = [dot(MR_pierna_I_global, i_pierna_I, 2), ...
+                     dot(MR_pierna_I_global, j_pierna_I, 2), ...
+                     dot(MR_pierna_I_global, k_pierna_I, 2)];
 
 % dH/dt de la pierna izquierda (LOCAL)
 dHdt_pierna_I = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Pierna.Izquierda.dHx_dt, ...
@@ -291,28 +265,30 @@ dHdt_pierna_I = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Pierna.Izquierda
                  Datos.Pasada.DerivadaCantidadMovimientoAngular.Pierna.Izquierda.dHz_dt];
 
 % Momento NETO de RODILLA izquierda
-M_rodilla_I = dHdt_pierna_I - MD_pierna_I_local - MR_pierna_I_local;
+M_rodilla_I_local = dHdt_pierna_I - MR_pierna_I_local;
 
-% =====================================================================
-% MUSLO IZQUIERDO  (segmento 2)
-% =====================================================================
-CoM_muslo_I = Datos.Pasada.ParametrosInerciales.Muslo.Izquierdo.CoM;     % [n x 3] m, global
+M_rodilla_I_global = M_rodilla_I_local(:,1) .* i_pierna_I ...
+                   + M_rodilla_I_local(:,2) .* j_pierna_I ...
+                   + M_rodilla_I_local(:,3) .* k_pierna_I;
+
+% % =====================================================================
+% % MUSLO IZQUIERDO 
+% % =====================================================================
+CoM_muslo_I = Datos.Pasada.ParametrosInerciales.Muslo.Izquierdo.CoM;   % [n x 3] m, global
 
 % Fuerza PROXIMAL = fuerza de cadera izquierda, ya calculada (global)
 F_cadera_I = [Datos.Pasada.FuerzasArticulares.Cadera.Izquierda.Fx, ...
               Datos.Pasada.FuerzasArticulares.Cadera.Izquierda.Fy, ...
               Datos.Pasada.FuerzasArticulares.Cadera.Izquierda.Fz];
 
-% Fuerza DISTAL del muslo = -fuerza de rodilla izquierda (3a ley)
-F_dist_muslo_I = -F_rodilla_I;
-
 % Brazos de momento (desde el CoM del muslo izquierdo)
-rP_muslo_I = Datos.Pasada.CentrosArticulares.Cadera.Izquierda  - CoM_muslo_I;  % p_Prx.2 -> cadera
-rD_muslo_I = Datos.Pasada.CentrosArticulares.Rodilla.Izquierda - CoM_muslo_I;  % p_Dis.2 -> rodilla
+rP_muslo_I = Datos.Pasada.CentrosArticulares.Cadera.Izquierda   - CoM_muslo_I;  
+rD_muslo_I = Datos.Pasada.CentrosArticulares.Rodilla.Izquierda  - CoM_muslo_I;  
 
 % Momento residual del muslo izquierdo en GLOBAL  (M_Res.2)
-MR_muslo_I = cross(rP_muslo_I, F_cadera_I,     2) ...
-           + cross(rD_muslo_I, F_dist_muslo_I, 2);
+MR_cadera_I_global = - M_rodilla_I_global ...
+                     - cross(rD_muslo_I, F_rodilla_I, 2) ...
+                     + cross(rP_muslo_I, F_cadera_I,  2);
 
 % Versores anatomicos del muslo izquierdo
 i_muslo_I = Datos.Pasada.SistemaCoordenadoAnatomico.Muslo.Izquierdo.i;
@@ -320,19 +296,9 @@ j_muslo_I = Datos.Pasada.SistemaCoordenadoAnatomico.Muslo.Izquierdo.j;
 k_muslo_I = Datos.Pasada.SistemaCoordenadoAnatomico.Muslo.Izquierdo.k;
 
 % Residual rotado a LOCAL del muslo izquierdo
-MR_muslo_I_local = [dot(MR_muslo_I, i_muslo_I, 2), ...
-                    dot(MR_muslo_I, j_muslo_I, 2), ...
-                    dot(MR_muslo_I, k_muslo_I, 2)];
-
-% Momento DISTAL del muslo izquierdo = -M_rodilla_I, llevado a LOCAL del muslo
-% 1) LOCAL de la pierna -> GLOBAL
-neg_Mrod_I_global = (-M_rodilla_I(:,1)).*i_pierna_I ...
-                  + (-M_rodilla_I(:,2)).*j_pierna_I ...
-                  + (-M_rodilla_I(:,3)).*k_pierna_I;
-% 2) GLOBAL -> LOCAL del muslo izquierdo
-MD_muslo_I_local = [dot(neg_Mrod_I_global, i_muslo_I, 2), ...
-                    dot(neg_Mrod_I_global, j_muslo_I, 2), ...
-                    dot(neg_Mrod_I_global, k_muslo_I, 2)];
+MR_cadera_I_local = [dot(MR_cadera_I_global, i_muslo_I, 2), ...
+                     dot(MR_cadera_I_global, j_muslo_I, 2), ...
+                     dot(MR_cadera_I_global, k_muslo_I, 2)];
 
 % dH/dt del muslo izquierdo (LOCAL)
 dHdt_muslo_I = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Muslo.Izquierdo.dHx_dt, ...
@@ -340,81 +306,83 @@ dHdt_muslo_I = [Datos.Pasada.DerivadaCantidadMovimientoAngular.Muslo.Izquierdo.d
                 Datos.Pasada.DerivadaCantidadMovimientoAngular.Muslo.Izquierdo.dHz_dt];
 
 % Momento NETO de CADERA izquierda
-M_cadera_I = dHdt_muslo_I - MD_muslo_I_local - MR_muslo_I_local;
+M_cadera_I_local = dHdt_muslo_I - MR_cadera_I_local;
+
+M_cadera_I_global = M_cadera_I_local(:,1) .* i_muslo_I ...
+                  + M_cadera_I_local(:,2) .* j_muslo_I ...
+                  + M_cadera_I_local(:,3) .* k_muslo_I;
 
 % =====================================================================
 % GUARDAR LADO IZQUIERDO
 % =====================================================================
-Datos.Pasada.MomentosArticulares.Tobillo.Izquierdo.Mx = M_tobillo_I(:,1);
-Datos.Pasada.MomentosArticulares.Tobillo.Izquierdo.My = M_tobillo_I(:,2);
-Datos.Pasada.MomentosArticulares.Tobillo.Izquierdo.Mz = M_tobillo_I(:,3);
+Datos.Pasada.MomentosArticulares.Tobillo.Izquierdo.Mx = M_tobillo_I_global(:,1);
+Datos.Pasada.MomentosArticulares.Tobillo.Izquierdo.My = M_tobillo_I_global(:,2);
+Datos.Pasada.MomentosArticulares.Tobillo.Izquierdo.Mz = M_tobillo_I_global(:,3);
 
-Datos.Pasada.MomentosArticulares.Rodilla.Izquierda.Mx = M_rodilla_I(:,1);
-Datos.Pasada.MomentosArticulares.Rodilla.Izquierda.My = M_rodilla_I(:,2);
-Datos.Pasada.MomentosArticulares.Rodilla.Izquierda.Mz = M_rodilla_I(:,3);
+Datos.Pasada.MomentosArticulares.Rodilla.Izquierda.Mx = M_rodilla_I_global(:,1);
+Datos.Pasada.MomentosArticulares.Rodilla.Izquierda.My = M_rodilla_I_global(:,2);
+Datos.Pasada.MomentosArticulares.Rodilla.Izquierda.Mz = M_rodilla_I_global(:,3);
 
-Datos.Pasada.MomentosArticulares.Cadera.Izquierda.Mx  = M_cadera_I(:,1);
-Datos.Pasada.MomentosArticulares.Cadera.Izquierda.My  = M_cadera_I(:,2);
-Datos.Pasada.MomentosArticulares.Cadera.Izquierda.Mz  = M_cadera_I(:,3);
+Datos.Pasada.MomentosArticulares.Cadera.Izquierda.Mx  = M_cadera_I_global(:,1);
+Datos.Pasada.MomentosArticulares.Cadera.Izquierda.My  = M_cadera_I_global(:,2);
+Datos.Pasada.MomentosArticulares.Cadera.Izquierda.Mz  = M_cadera_I_global(:,3);
 
-%% ============================================================
-%  PROYECCION A EJES ANATOMICOS
-%% ============================================================
+% %% ============================================================
+% %  PROYECCION A EJES ANATOMICOS
+% %% ============================================================
 SCA = Datos.Pasada.SistemaCoordenadoAnatomico;
 
 % TOBILLO: momento en LOCAL del PIE -> GLOBAL -> proyecto
 %   flex/ext = k de la PIERNA (proximal) ; rot int/ext = i del PIE (distal)
-Mtob_D_g = localAGlobal(M_tobillo_D, SCA.Pie.Derecho.i, SCA.Pie.Derecho.j, SCA.Pie.Derecho.k);
 [tobD.flexext, tobD.rotie, tobD.abdadd] = ...
-    proyectarEjesArticulares(Mtob_D_g, SCA.Pierna.Derecha.k, SCA.Pie.Derecho.i);
+    proyectarEjesArticulares(M_tobillo_D_global, SCA.Pierna.Derecha.k, SCA.Pie.Derecho.i);
 
 % RODILLA: momento en LOCAL de la PIERNA -> GLOBAL -> proyecto
 %   flex/ext = k del MUSLO (proximal) ; rot int/ext = i de la PIERNA (distal)
-Mrod_D_g = localAGlobal(M_rodilla_D, SCA.Pierna.Derecha.i, SCA.Pierna.Derecha.j, SCA.Pierna.Derecha.k);
 [rodD.flexext, rodD.rotie, rodD.abdadd] = ...
-    proyectarEjesArticulares(Mrod_D_g, SCA.Muslo.Derecho.k, SCA.Pierna.Derecha.i);
+    proyectarEjesArticulares(M_rodilla_D_global, SCA.Muslo.Derecho.k, SCA.Pierna.Derecha.i);
 
 % CADERA: momento en LOCAL del MUSLO -> GLOBAL -> proyecto
 %   flex/ext = k de la PELVIS (proximal) ; rot int/ext = i del MUSLO (distal)
-Mcad_D_g = localAGlobal(M_cadera_D, SCA.Muslo.Derecho.i, SCA.Muslo.Derecho.j, SCA.Muslo.Derecho.k);
 [cadD.flexext, cadD.rotie, cadD.abdadd] = ...
-    proyectarEjesArticulares(Mcad_D_g, SCA.Pelvis.k, SCA.Muslo.Derecho.i);
+    proyectarEjesArticulares(M_cadera_D_global, SCA.Pelvis.k, SCA.Muslo.Derecho.i);
 
 % TOBILLO I: LOCAL del pie -> GLOBAL -> proyectar
-Mtob_I_g = localAGlobal(M_tobillo_I, SCA.Pie.Izquierdo.i, SCA.Pie.Izquierdo.j, SCA.Pie.Izquierdo.k);
 [tobI.flexext, tobI.rotie, tobI.abdadd] = ...
-    proyectarEjesArticulares(Mtob_I_g, SCA.Pierna.Izquierda.k, SCA.Pie.Izquierdo.i);
+    proyectarEjesArticulares(M_tobillo_I_global, SCA.Pierna.Izquierda.k, SCA.Pie.Izquierdo.i);
 
 % RODILLA I: LOCAL de la pierna -> GLOBAL -> proyectar
-Mrod_I_g = localAGlobal(M_rodilla_I, SCA.Pierna.Izquierda.i, SCA.Pierna.Izquierda.j, SCA.Pierna.Izquierda.k);
 [rodI.flexext, rodI.rotie, rodI.abdadd] = ...
-    proyectarEjesArticulares(Mrod_I_g, SCA.Muslo.Izquierdo.k, SCA.Pierna.Izquierda.i);
+    proyectarEjesArticulares(M_rodilla_I_global, SCA.Muslo.Izquierdo.k, SCA.Pierna.Izquierda.i);
 
 % CADERA I: LOCAL del muslo -> GLOBAL -> proyectar
-Mcad_I_g = localAGlobal(M_cadera_I, SCA.Muslo.Izquierdo.i, SCA.Muslo.Izquierdo.j, SCA.Muslo.Izquierdo.k);
 [cadI.flexext, cadI.rotie, cadI.abdadd] = ...
-    proyectarEjesArticulares(Mcad_I_g, SCA.Pelvis.k, SCA.Muslo.Izquierdo.i);
+    proyectarEjesArticulares(M_cadera_I_global, SCA.Pelvis.k, SCA.Muslo.Izquierdo.i);
 
-%% ---- Ajuste de signos morfologicos (CONVENCION - toggle segun referencia) ----
 %% ---- Ajuste de signos morfologicos - DERECHO ----
-rodD.flexext = -rodD.flexext;
-cadD.flexext = -cadD.flexext;
-% tobD.flexext = -tobD.flexext;  
-% rodD.abdadd  = -rodD.abdadd;
-% cadD.abdadd  = -cadD.abdadd;
-% rodD.rotie   = -rodD.rotie;
-% cadD.rotie   = -cadD.rotie;
+
+%tobD.flexext = -tobD.flexext; 
+%tobD.rotie   = -tobD.rotie;
+%tobD.abdadd = - tobD.abdadd;
+%rodD.flexext = -rodD.flexext;
+%rodD.rotie   = -rodD.rotie;
+%rodD.abdadd  = -rodD.abdadd;
+%cadD.flexext = -cadD.flexext;
+%cadD.rotie   = -cadD.rotie;
+%cadD.abdadd  = -cadD.abdadd;
 
 %% ---- Ajuste de signos morfologicos - IZQUIERDO ----
-% El lado izquierdo suele requerir los mismos ajustes que el derecho,
-% pero verificar contra el apunte antes de activar.
-rodI.flexext = -rodI.flexext;
-cadI.flexext = -cadI.flexext;
-% tobI.flexext = -tobI.flexext;
-% rodI.abdadd  = -rodI.abdadd;
-% cadI.abdadd  = -cadI.abdadd;
-% rodI.rotie   = -rodI.rotie;
-% cadI.rotie   = -cadI.rotie;
+
+%tobI.flexext = -tobI.flexext;
+%tobI.rotie   = -tobI.rotie;
+tobI.abdadd = - tobI.abdadd;
+%rodI.flexext = -rodI.flexext;
+rodI.rotie   = -rodI.rotie;
+rodI.abdadd  = -rodI.abdadd;
+%cadI.flexext = -cadI.flexext;
+cadI.rotie   = -cadI.rotie;
+cadI.abdadd  = -cadI.abdadd;
+ 
 
 %% ============================================================
 %  GRAFICACION: Momentos articulares en ejes anatómicos
@@ -431,7 +399,7 @@ rng_L = Datos.eventos.FrameLHS1 : Datos.eventos.FrameLHS2;
 filas = {
     'Cadera',   cadD.flexext, cadI.flexext, cadD.abdadd, cadI.abdadd, cadD.rotie, cadI.rotie;
     'Rodilla',  rodD.flexext, rodI.flexext, rodD.abdadd, rodI.abdadd, rodD.rotie, rodI.rotie;
-    'Tobillo',  tobD.flexext, tobI.flexext, tobD.abdadd, tobI.abdadd, tobD.rotie, tobI.rotie
+    'Tobillo',  tobD.flexext, tobI.flexext, tobD.rotie, tobI.rotie, tobD.abdadd, tobI.abdadd
 };
 ejesM = {'Ext(-)/Flex(+) [N·m/kg]', 'Add(-)/Abd(+) [N·m/kg]', 'RotExt(-)/RotInt(+) [N·m/kg]'};
 
@@ -443,92 +411,56 @@ masa = Datos.antropometria.PESO.Valor;   % [kg]
 for f = 1:size(filas, 1)
     art = filas{f, 1};
     for c = 1:3
-        der = filas{f, 2 + (c-1)*2} / masa;   % columnas 2,4,6
-        izq = filas{f, 3 + (c-1)*2} / masa;   % columnas 3,5,7
+        % Saltar Tobillo Abd/Add (fila 3, columna 2)
+        if f == 3 && c == 2
+            continue
+        end
+        der = filas{f, 2 + (c-1)*2} / masa;
+        izq = filas{f, 3 + (c-1)*2} / masa;
         subplot(3, 3, (f-1)*3 + c)
-        graficarMomentosArticulares(x, ...
+        graficarFuerzaArticulares(x, ...
             InterpolaA100Muestras(der(rng_R)), ...
             InterpolaA100Muestras(izq(rng_L)), ...
             x_RTO, x_LTO, ['Momento ', art]);
-        ylabel(ejesM{c})
+        % Tobillo columna 3: ylabel cambia a Abd/Add aunque grafique rotie
+        if f == 3 && c == 3
+            ylabel('Add(-)/Abd(+) [N·m/kg]')
+        else
+            ylabel(ejesM{c})
+        end
     end
 end
- end
-% =========================================================================
-%                          FUNCIONES LOCALES
-% =========================================================================
 
-function Vg = localAGlobal(Vl, i, j, k)
-Vg = Vl(:,1).*i + Vl(:,2).*j + Vl(:,3).*k;
-end
+ end
+% % =========================================================================
+% %                          FUNCIONES LOCALES
+% % =========================================================================
 
 function [flexext, rotie, abdadd] = proyectarEjesArticulares(M, k_prox, i_dist)
 flexext = dot(M, k_prox, 2); rotie = dot(M, i_dist, 2);
 eje_flot = cross(k_prox, i_dist, 2); eje_flot = eje_flot ./ vecnorm(eje_flot, 2, 2); abdadd = dot(M, eje_flot, 2);
 end
-
-function Y = resamplearAGrilla(X, n)
-% Remuestrea X a n filas. Acepta vector fila/columna o matriz (por columnas).
-if isrow(X)            % si viene como fila, lo paso a columna
-    X = X(:);
-end
-S = size(X, 1);
-if S == n
-    Y = X;
-    return;
-end
-if S < 2               % sin suficientes muestras para interpolar
-    Y = repmat(X(1,:), n, 1);
-    return;
-end
-t_orig = linspace(0, 1, S);
-t_new  = linspace(0, 1, n);
-Y = interp1(t_orig, X, t_new, 'linear');
-if size(Y, 1) ~= n     % interp1 devuelve fila cuando X es vector columna
-    Y = Y.';
-end
-end
-
+ 
 function Mout = alinearMomento(Mraw, n, iniApoyo, finApoyo)
 Mraw = Mraw(:);
 Mout = zeros(n, 1);
-
-% Detectar bloque por no-NaN en lugar de ~= 0
-idx = find(~isnan(Mraw));
-if isempty(idx)
-    return;
-end
+idx = find(Mraw ~= 0 & ~isnan(Mraw));      % bloque de contacto: no-cero y no-NaN
+if isempty(idx), return; end
 bloque = Mraw(idx(1):idx(end));
-
-% Rellenar NaN internos al bloque (si los hubiera) por interpolación
 nan_int = isnan(bloque);
 if any(nan_int)
     t = 1:numel(bloque);
     bloque(nan_int) = interp1(t(~nan_int), bloque(~nan_int), t(nan_int), 'linear', 0);
 end
-
-iniApoyo = max(1, round(iniApoyo));
-finApoyo = min(n, round(finApoyo));
-if finApoyo <= iniApoyo
-    return;
-end
-
-L = finApoyo - iniApoyo + 1;
-Mout(iniApoyo:finApoyo) = resamplearAGrilla(bloque, L);
-end
-
-function Mout = alinearMatriz(Xraw, n, iniApoyo, finApoyo)
-% Igual que alinearMomento pero para matrices [m x 3]
-Mout = zeros(n, size(Xraw, 2));
-mask = ~any(isnan(Xraw), 2);
-idx  = find(mask);
-if isempty(idx), return; end
-bloque = Xraw(idx(1):idx(end), :);
-
 iniApoyo = max(1, round(iniApoyo));
 finApoyo = min(n, round(finApoyo));
 if finApoyo <= iniApoyo, return; end
-
 L = finApoyo - iniApoyo + 1;
-Mout(iniApoyo:finApoyo, :) = resamplearAGrilla(bloque, L);
+Mout(iniApoyo:finApoyo) = resamplearAGrilla(bloque, L);   % <-- esta linea faltaba
+end
+
+function Y = resamplearAGrilla(X, n)
+S = size(X,1);
+if S == n, Y = X; return; end
+Y = interp1(linspace(0,1,S), X, linspace(0,1,n), 'linear');
 end

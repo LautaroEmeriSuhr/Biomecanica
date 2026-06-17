@@ -157,6 +157,37 @@ for s = 1:size(segmentos, 1)
         Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(lado).dHz_dt = dHz_dt;
 
     end
+
+%% ---- Pelvis: velocidad angular desde los versores (sin Euler) ----
+i = Datos.Pasada.SistemaCoordenadoAnatomico.Pelvis.i;   % n x 3
+j = Datos.Pasada.SistemaCoordenadoAnatomico.Pelvis.j;
+k = Datos.Pasada.SistemaCoordenadoAnatomico.Pelvis.k;
+n = size(i, 1);
+
+% Derivadas temporales de cada versor
+di = [derivadaDiscreta(i(:,1),dt), derivadaDiscreta(i(:,2),dt), derivadaDiscreta(i(:,3),dt)];
+dj = [derivadaDiscreta(j(:,1),dt), derivadaDiscreta(j(:,2),dt), derivadaDiscreta(j(:,3),dt)];
+dk = [derivadaDiscreta(k(:,1),dt), derivadaDiscreta(k(:,2),dt), derivadaDiscreta(k(:,3),dt)];
+
+wx = zeros(n,1);  wy = zeros(n,1);  wz = zeros(n,1);
+for t = 1:n
+    R  = [i(t,:).', j(t,:).', k(t,:).'];   % columnas = ejes locales en global
+    dR = [di(t,:).', dj(t,:).', dk(t,:).'];
+    W  = R.' * dR;                          % [omega_local]x  (antisimetrica)
+    wx(t) = W(3,2);
+    wy(t) = W(1,3);
+    wz(t) = W(2,1);
+end
+
+% Filtrado (finito en todo el rango, no hay NaN)
+wx = filtfilt(b, a, wx);
+wy = filtfilt(b, a, wy);
+wz = filtfilt(b, a, wz);
+
+Datos.Pasada.VelocidadAngular.Pelvis.wx = wx;
+Datos.Pasada.VelocidadAngular.Pelvis.wy = wy;
+Datos.Pasada.VelocidadAngular.Pelvis.wz = wz;
+
 end
 %% Graficacion
 %% Preparación

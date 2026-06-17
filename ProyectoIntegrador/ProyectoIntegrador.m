@@ -67,3 +67,5 @@ Datos = CalculoCinematicaAngular(Datos, dt, fc);
 Datos = CalculoFuerzasArticulares(Datos, DerechaPlataforma1);
 
 Datos = CalculoMomentosArticulares(Datos);
+
+Datos = CalculoPotenciaArticular(Datos);
