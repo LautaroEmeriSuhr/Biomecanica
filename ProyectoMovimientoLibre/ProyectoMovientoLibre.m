@@ -1,63 +1,92 @@
+% =========================================================================
+% ProyectoMovimientoLibre_Lote.m
+% -------------------------------------------------------------------------
+% Procesa TODOS los .c3d de una carpeta y saca MEDIA y DESVIO (entre todas
+% las pasadas) de:
+%   - los ANGULOS articulares            -> reporte 3x3  (grados)
+%   - la VELOCIDAD ANGULAR de segmentos  -> reporte por segmento (°/s)
+%
+% Requiere (ya parametrizados, sin uigetfile):
+%   leer_c3d(filePath,fileName) -> devuelve frame0
+%   CargarRegistro(UbNombre,fileName) -> guarda Datos.frame0
+%   NormalizarA100(nodo,ventana)
+%   GraficarReporteAngulos(Media,Desvio,Etiquetas)
+%   GraficarReporteVelocidad(Media,Desvio,Etiquetas)
+%
+% Salidas principales:
+%   MediaAng, DesvioAng (100 x Ma)   + EtiqAng
+%   MediaVel, DesvioVel (100 x Mv)   + EtiqVel
+% =========================================================================
+
 clear all
 close all
 clc
 
-[Datos,Archivo]=CargarRegistro();% El llamado a esta función permite cargar el archivo c3d. AHORA tiene la ventaja que los archivos pueden estar en cualquier carpeta del rígido 
-                                                                  % y no hace falta cambiar de directorio. Este cambio permite conservar la ruta y el nombre del archivo y mantener el directorio actual sin mover.
-                                                                  % esta función no requiere ningun parámetro de ida y regresa con parámtros:
-                                                                  % "Datos" donde está toda la estructura del registro y 
-                                                                  %"Archivo" que es solamente el nombre del archivo que permite ver en el workspace el archivo sobre el que estoy trabajando
+%% --- CONFIG -------------------------------------------------------------
+% Campo de Datos.Pasada donde CalculoCinematicaAngular deja la velocidad
+% angular de los segmentos. Si no acertas el nombre, el codigo te lista los
+% campos disponibles para que pongas el correcto.
+campoVel = 'VelocidadAngular';
 
- 
-[Datos, DerechaPlataforma1,PrimerFrame,UltimoFrame]=Ciclo2Pasos(Datos);
-% La función "Ciclo2Pasos" Recibe como parámetro la estuctura de "Datos"
-% completa no la modifica, pero si devuelve los parametros convertidos en
-% frame (cuadros) en los que se producen los eventos de apoyo del taón y
-%  despegue de la punta del pie que permiten recortar los datos de cada
-%  ciclo ixquierdo y derecho. Además se indica en "DerechaPlataforma1" con
-%  una variable booleana si pisa primero con el pie derecho 
+fc = 6;     % frecuencia de corte del filtro (la que ya usabas)
 
+%% --- Carpeta con los c3d ------------------------------------------------
+UbCodigo = cd;
+Ubc3d = uigetdir(cd, 'Selecciona la carpeta con los .c3d');
+if isequal(Ubc3d,0); error('No se selecciono carpeta.'); end
 
-AntesHS=10; % es es parametro de cuantos datos antes de el primer contacto del pie 
-%que pisa primero se inicia el recorte de los datos para pasar
-% como parámetro a la función "RecortaDatos"
-DespuesHS=10;
-% es es parametro de cuantos datos despues del segundo contacto del pie 
-% que pisa en  segundo término se inicia el recorte de los datos para pasar
-% como parámetro a la función "RecortaDatos"
-Datos=RecortaDatos(Datos,PrimerFrame-AntesHS,UltimoFrame+DespuesHS);
-% esta función recorta los datos a un paso de ambos pies + la cantidad de
-% datos definidas por "AntesHS" y "DespuesHS" 
-% IMPORTANTE: tener en cuenta que esta escrita con los marcadores
-% organizados en una estructura "Datos.Pasada.Marcadores.Crudos" esto puede
-% haber definido usted que sea otra forma de estructura, debe adaptarla 
+cd(Ubc3d);  C3ds = dir('*.c3d');  cd(UbCodigo);
+N = numel(C3ds);
+if N == 0; error('No hay .c3d en %s', Ubc3d); end
 
+%% --- Loop por registro --------------------------------------------------
+TodosAng = [];  EtiqAng = {};
+TodosVel = [];  EtiqVel = {};
 
-Datos = SegmentosArticulares(Datos);% Esta función sirve para calcular un vector entre dos puntos, 
-% los asis izquierdo y derecho en el espacio 3D y lo grafica. También grafica solapado con ese mismo vector 
-% en otro color el vector convertido a versor unitario (1 metro de longitud)  
-% asimismo, usando el producto cruz calcula un vector perpendicular a tres
-% puntos sacro, asis izquierdo y derecho y de igual forma lo grafica en 3D
-% como vector y como versor unitario en otro color se grafica en la misma
-% figura. Finalmente calcula un tercer versor perpendicular a los dos
-% anteriores lo que daría un sistema de tres versores ortonormles entre sí.
-% Este tercer versor se grafica también todo en una misma figura.
-% IMPORTANTE: Todo este código es usando "SIN" usar bucles con "for"
-% esto requiere dos funciones adicionales para la graficación no se utiliza una función 
-% aparte lo que podría resultar conveniente      
-% IMPORTANTE2: tener en cuenta que esta escrita con los marcadores
-% organizados en una estructura "Datos.Pasada.Marcadores.Crudos" esto puede
-% haber definido usted que sea otra forma de estructura, debe adaptarla
+for r = 1:N
+    Nombre = C3ds(r).name(1:end-4);
+    fprintf('(%d/%d)  %s\n', r, N, Nombre);
 
-Datos = CentrosArticulares(Datos);
+    [Datos, Archivo] = CargarRegistro(Ubc3d, Nombre);
 
-Datos = SistemaCoordenadoAnatomico(Datos);
+    Datos = SegmentosArticulares(Datos);
+    Datos = CentrosArticulares(Datos);
+    Datos = SistemaCoordenadoAnatomico(Datos);
+    Datos = CalculoAngulosArticulares(Datos);
 
-Datos = CalculoAngulosArticulares(Datos);
+    % --- cinematica angular (velocidad angular de segmentos) ---
+    Datos = CalculoParametrosInerciales(Datos);          % si CalculoCinematicaAngular lo necesita
+    dt = 1/Datos.info.Cinematica.frequency;
+    Datos = CalculoCinematicaAngular(Datos, dt, fc);
 
-Datos = CalculoParametrosInerciales(Datos);
+    % --- ventana del gesto (frames absolutos -> indices locales) ---
+    ventana = (Datos.eventos.Inicio:Datos.eventos.Fin) - Datos.frame0 + 1;
 
-dt = 1/Datos.info.Cinematica.frequency; %% Periodo de muestreo del sistema de Adquisición
-fc = 6; %% Frecuencia de corte del Filtro Pasa-Bajos de Butterworth de 2do Orden
+    % --- angulos ---
+    [Aa, Ea] = NormalizarA100(Datos.Pasada.AngulosArticulares, ventana);
 
-Datos = CalculoCinematicaAngular(Datos, dt, fc);
+    % --- velocidad angular ---
+    if ~isfield(Datos.Pasada, campoVel)
+        error(['No existe Datos.Pasada.%s\n' ...
+               'Campos disponibles en Datos.Pasada: %s\n' ...
+               'Edita "campoVel" arriba con el nombre correcto.'], ...
+               campoVel, strjoin(fieldnames(Datos.Pasada), ', '));
+    end
+    [Av, Ev] = NormalizarA100(Datos.Pasada.(campoVel), ventana);
+
+    if isempty(EtiqAng), EtiqAng = Ea; end
+    if isempty(EtiqVel), EtiqVel = Ev; end
+    TodosAng = cat(3, TodosAng, Aa);     % 100 x Ma x N
+    TodosVel = cat(3, TodosVel, Av);     % 100 x Mv x N
+end
+
+%% --- Media y desvio entre pasadas --------------------------------------
+MediaAng  = mean(TodosAng, 3);   DesvioAng = std(TodosAng, 0, 3);
+MediaVel  = mean(TodosVel, 3);   DesvioVel = std(TodosVel, 0, 3);
+
+fprintf('\nListo: %d registros | %d angulos | %d series de velocidad.\n', ...
+        N, numel(EtiqAng), numel(EtiqVel));
+
+%% --- Reportes -----------------------------------------------------------
+GraficarReporteAngulos(MediaAng, DesvioAng, EtiqAng);     % grados
+GraficarReporteVelocidad(MediaVel, DesvioVel, EtiqVel);   % °/s

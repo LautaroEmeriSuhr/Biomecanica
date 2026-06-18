@@ -1,11 +1,6 @@
-function [marcadores,informacionCine,Fuerzas,informacionFuerzas,Antropometria,Eventos,fileName,frame0] = leer_c3d(filePath, fileName)
+function [marcadores,informacionCine,Fuerzas,informacionFuerzas,Antropometria,Eventos,fileName] = Nuevo_leer_c3d()
 % LEER_C3D  Carga un archivo C3D (cinematica y fuerzas) y lee la ANTROPOMETRIA
 % y los EVENTOS (Inicio/Fin) desde archivos de Excel.
-%
-% AHORA recibe (filePath, fileName) para poder usarse en lote (sin uigetfile):
-%   filePath : carpeta que contiene el c3d
-%   fileName : nombre del trial, con o sin ".c3d" (ej. 'pitching_002')
-% y devuelve ademas frame0 = primer frame real del c3d (btkGetFirstFrame).
 %
 % - Los marcadores se renombran a la convencion que usan SegmentosArticulares
 %   y CentrosArticulares (r_asis, r_knee_1, r_bar_2, etc.).
@@ -20,20 +15,14 @@ rutaAntropometria = 'C:\Users\lauta\OneDrive\Escritorio\Biomecanica\ProyectoMovi
 rutaEventos       = 'C:\Users\lauta\OneDrive\Escritorio\Biomecanica\ProyectoMovimientoLibre\c3d\Eventos.xlsx';   % p.ej. 'C:\Datos\Softbol\Eventos.xlsx'
 
 % ====================================================================
-% 1) Cargar el archivo C3D  (sin uigetfile: usa filePath/fileName)
+% 1) Cargar el archivo C3D
 % ====================================================================
-[~, nombreSolo, ext] = fileparts(fileName);
-if isempty(ext)
-    fileName = [fileName '.c3d'];      % agrega extension si vino sin ella
+[fileName, filePath] = uigetfile('*.c3d','Seleccione el archivo C3D');
+if isequal(fileName,0)
+    error('No se selecciono ningun archivo C3D.');
 end
-rutaC3D = fullfile(filePath, fileName);
-if ~isfile(rutaC3D)
-    error('No existe el archivo C3D: %s', rutaC3D);
-end
-[h,~,~] = btkReadAcquisition(rutaC3D);
+[h,~,~] = btkReadAcquisition([filePath fileName]);
 btkSetPointsUnit(h, 'marker', 'm')
-
-frame0 = btkGetFirstFrame(h);          % primer frame real del c3d (para alinear eventos)
 
 [premarcadores, informacionCine]   = btkGetMarkers(h);
 [preFuerzas, informacionFuerzas]   = btkGetForcePlatforms(h);
@@ -187,7 +176,7 @@ archivoEventos = resolverArchivo(rutaEventos, ...
                 'Seleccione el archivo de eventos (Inicio/Fin)');
 celdasEv = readcell(archivoEventos);
 
-trialActual = nombreSolo;   % nombre del trial sin extension (ej. "pitching_002")
+[~, trialActual] = fileparts(fileName);   % nombre del trial (ej. "pitching_002")
 
 Eventos = struct('Trial',trialActual,'Inicio',NaN,'Fin',NaN,'PiernaDominante','');
 

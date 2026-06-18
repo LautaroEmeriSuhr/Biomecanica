@@ -103,74 +103,74 @@ Datos.Pasada.Vectores.Pie.Izquierdo.u = unormalizado;
 Datos.Pasada.Vectores.Pie.Izquierdo.v = vnormalizado;
 Datos.Pasada.Vectores.Pie.Izquierdo.w = wnormalizado;
 
-%% Graficacion
-
-%% ---- PELVIS ----
-frames = length(Datos.Pasada.Marcadores.Valores.sacrum);
-Origen = Datos.Pasada.Marcadores.Valores.sacrum;
-vp = Datos.Pasada.Vectores.Pelvis.v;
-wp = Datos.Pasada.Vectores.Pelvis.w;
-up = Datos.Pasada.Vectores.Pelvis.u;
-for nframe = 1:10:frames
-    o = Origen(nframe,:);
-    quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
-end
-
-%% ---- PIERNA DERECHA ----
-frames = length(Datos.Pasada.Marcadores.Valores.r_knee_1);
-Origen = Datos.Pasada.Marcadores.Valores.r_knee_1;
-vp = Datos.Pasada.Vectores.Pierna.Derecha.v;
-wp = Datos.Pasada.Vectores.Pierna.Derecha.w;
-up = Datos.Pasada.Vectores.Pierna.Derecha.u;
-for nframe = 1:10:frames
-    o = Origen(nframe,:);
-    quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
-end
-
-
-%% ---- PIE DERECHO ----
-frames = length(Datos.Pasada.Marcadores.Valores.r_mall);
-Origen = Datos.Pasada.Marcadores.Valores.r_mall;
-vp = Datos.Pasada.Vectores.Pie.Derecho.v;
-wp = Datos.Pasada.Vectores.Pie.Derecho.w;
-up = Datos.Pasada.Vectores.Pie.Derecho.u;
-for nframe = 1:10:frames
-    o = Origen(nframe,:);
-    quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
-end
-
-%% ---- PIERNA IZQUIERDA ----
-frames = length(Datos.Pasada.Marcadores.Valores.l_knee_1);
-Origen = Datos.Pasada.Marcadores.Valores.l_knee_1;
-vp = Datos.Pasada.Vectores.Pierna.Izquierda.v;
-wp = Datos.Pasada.Vectores.Pierna.Izquierda.w;
-up = Datos.Pasada.Vectores.Pierna.Izquierda.u;
-for nframe = 1:10:frames
-    o = Origen(nframe,:);
-    quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
-end
-
-
-%% ---- PIE IZQUIERDO ----
-frames = length(Datos.Pasada.Marcadores.Valores.l_mall);
-Origen = Datos.Pasada.Marcadores.Valores.l_mall;
-vp = Datos.Pasada.Vectores.Pie.Izquierdo.v;
-wp = Datos.Pasada.Vectores.Pie.Izquierdo.w;
-up = Datos.Pasada.Vectores.Pie.Izquierdo.u;
-for nframe = 1:10:frames
-    o = Origen(nframe,:);
-    quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
-    quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
-end
-%% Leyenda
-legend([plot3(nan,nan,nan,color_u), plot3(nan,nan,nan,color_v), plot3(nan,nan,nan,color_w)], ...
-       {'u ', 'v ', 'w'});
+% %% Graficacion
+% 
+% %% ---- PELVIS ----
+% frames = length(Datos.Pasada.Marcadores.Valores.sacrum);
+% Origen = Datos.Pasada.Marcadores.Valores.sacrum;
+% vp = Datos.Pasada.Vectores.Pelvis.v;
+% wp = Datos.Pasada.Vectores.Pelvis.w;
+% up = Datos.Pasada.Vectores.Pelvis.u;
+% for nframe = 1:10:frames
+%     o = Origen(nframe,:);
+%     quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
+% end
+% 
+% %% ---- PIERNA DERECHA ----
+% frames = length(Datos.Pasada.Marcadores.Valores.r_knee_1);
+% Origen = Datos.Pasada.Marcadores.Valores.r_knee_1;
+% vp = Datos.Pasada.Vectores.Pierna.Derecha.v;
+% wp = Datos.Pasada.Vectores.Pierna.Derecha.w;
+% up = Datos.Pasada.Vectores.Pierna.Derecha.u;
+% for nframe = 1:10:frames
+%     o = Origen(nframe,:);
+%     quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
+% end
+% 
+% 
+% %% ---- PIE DERECHO ----
+% frames = length(Datos.Pasada.Marcadores.Valores.r_mall);
+% Origen = Datos.Pasada.Marcadores.Valores.r_mall;
+% vp = Datos.Pasada.Vectores.Pie.Derecho.v;
+% wp = Datos.Pasada.Vectores.Pie.Derecho.w;
+% up = Datos.Pasada.Vectores.Pie.Derecho.u;
+% for nframe = 1:10:frames
+%     o = Origen(nframe,:);
+%     quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
+% end
+% 
+% %% ---- PIERNA IZQUIERDA ----
+% frames = length(Datos.Pasada.Marcadores.Valores.l_knee_1);
+% Origen = Datos.Pasada.Marcadores.Valores.l_knee_1;
+% vp = Datos.Pasada.Vectores.Pierna.Izquierda.v;
+% wp = Datos.Pasada.Vectores.Pierna.Izquierda.w;
+% up = Datos.Pasada.Vectores.Pierna.Izquierda.u;
+% for nframe = 1:10:frames
+%     o = Origen(nframe,:);
+%     quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
+% end
+% 
+% 
+% %% ---- PIE IZQUIERDO ----
+% frames = length(Datos.Pasada.Marcadores.Valores.l_mall);
+% Origen = Datos.Pasada.Marcadores.Valores.l_mall;
+% vp = Datos.Pasada.Vectores.Pie.Izquierdo.v;
+% wp = Datos.Pasada.Vectores.Pie.Izquierdo.w;
+% up = Datos.Pasada.Vectores.Pie.Izquierdo.u;
+% for nframe = 1:10:frames
+%     o = Origen(nframe,:);
+%     quiver3(o(1),o(2),o(3), escala*vp(nframe,1), escala*vp(nframe,2), escala*vp(nframe,3), 0, 'Color',color_v, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*wp(nframe,1), escala*wp(nframe,2), escala*wp(nframe,3), 0, 'Color',color_w, 'AutoScale','off', 'LineWidth',1);
+%     quiver3(o(1),o(2),o(3), escala*up(nframe,1), escala*up(nframe,2), escala*up(nframe,3), 0, 'Color',color_u, 'AutoScale','off', 'LineWidth',1);
+% end
+% %% Leyenda
+% legend([plot3(nan,nan,nan,color_u), plot3(nan,nan,nan,color_v), plot3(nan,nan,nan,color_w)], ...
+%        {'u ', 'v ', 'w'});

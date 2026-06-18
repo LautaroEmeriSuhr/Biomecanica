@@ -92,101 +92,101 @@ p_dedo_gordo_izquierdo = Datos.Pasada.Marcadores.Valores.l_mall ...
     
 Datos.Pasada.CentrosArticulares.DedoGordo.Izquierdo = p_dedo_gordo_izquierdo;
 
-%% Graficacion de centros articulares + marcadores de verificacion
-frames = length(p_rodilla_derecha);
-figure;
-hold on;
-grid on;
-title('Centros Articulares + Marcadores - Miembro Inferior');
-xlabel('X (m)'); ylabel('Y (m)'); zlabel('Z (m)');
-
-% Colores por articulacion
-color_cadera  = [0.8 0.0 0.8];   % magenta
-color_rodilla = [0.0 0.6 0.0];   % verde
-color_tobillo = [0.0 0.4 1.0];   % azul
-color_dedo    = [1.0 0.5 0.0];   % naranja
-
-for nframe = 1:10:frames
-
-    %% ---- MARCADORES CRUDOS (cruz x, mismo color que su CA) ----
-
-    % Pelvis → cadera
-    plot3(Datos.Pasada.Marcadores.Valores.r_asis(nframe,1), Datos.Pasada.Marcadores.Valores.r_asis(nframe,2), Datos.Pasada.Marcadores.Valores.r_asis(nframe,3), 'x', 'MarkerSize',6, 'Color',color_cadera, 'LineWidth',1.5);
-    plot3(Datos.Pasada.Marcadores.Valores.l_asis(nframe,1), Datos.Pasada.Marcadores.Valores.l_asis(nframe,2), Datos.Pasada.Marcadores.Valores.l_asis(nframe,3), 'x', 'MarkerSize',6, 'Color',color_cadera, 'LineWidth',1.5);
-
-    % Epicóndilo → rodilla
-    plot3(Datos.Pasada.Marcadores.Valores.r_knee_1(nframe,1), Datos.Pasada.Marcadores.Valores.r_knee_1(nframe,2), Datos.Pasada.Marcadores.Valores.r_knee_1(nframe,3), 'x', 'MarkerSize',6, 'Color',color_rodilla, 'LineWidth',1.5);
-    plot3(Datos.Pasada.Marcadores.Valores.l_knee_1(nframe,1), Datos.Pasada.Marcadores.Valores.l_knee_1(nframe,2), Datos.Pasada.Marcadores.Valores.l_knee_1(nframe,3), 'x', 'MarkerSize',6, 'Color',color_rodilla, 'LineWidth',1.5);
-
-    % Maléolo → tobillo
-    plot3(Datos.Pasada.Marcadores.Valores.r_mall(nframe,1), Datos.Pasada.Marcadores.Valores.r_mall(nframe,2), Datos.Pasada.Marcadores.Valores.r_mall(nframe,3), 'x', 'MarkerSize',6, 'Color',color_tobillo, 'LineWidth',1.5);
-    plot3(Datos.Pasada.Marcadores.Valores.l_mall(nframe,1), Datos.Pasada.Marcadores.Valores.l_mall(nframe,2), Datos.Pasada.Marcadores.Valores.l_mall(nframe,3), 'x', 'MarkerSize',6, 'Color',color_tobillo, 'LineWidth',1.5);
-
-    % Metatarso → dedo gordo
-    plot3(Datos.Pasada.Marcadores.Valores.r_met(nframe,1), Datos.Pasada.Marcadores.Valores.r_met(nframe,2), Datos.Pasada.Marcadores.Valores.r_met(nframe,3), 'x', 'MarkerSize',6, 'Color',color_dedo, 'LineWidth',1.5);
-    plot3(Datos.Pasada.Marcadores.Valores.l_met(nframe,1), Datos.Pasada.Marcadores.Valores.l_met(nframe,2), Datos.Pasada.Marcadores.Valores.l_met(nframe,3), 'x', 'MarkerSize',6, 'Color',color_dedo, 'LineWidth',1.5);
-
-   %% ---- CENTROS ARTICULARES ----
-
-    % Cadera (diamante ◆)
-    plot3(p_cadera_derecha(nframe,1),   p_cadera_derecha(nframe,2),   p_cadera_derecha(nframe,3),   'd', 'MarkerSize',7, 'MarkerEdgeColor',color_cadera, 'MarkerFaceColor',color_cadera);
-    plot3(p_cadera_izquierda(nframe,1), p_cadera_izquierda(nframe,2), p_cadera_izquierda(nframe,3), 'd', 'MarkerSize',7, 'MarkerEdgeColor',color_cadera, 'MarkerFaceColor','w');
-
-    % Rodilla (cuadrado ■)
-    plot3(p_rodilla_derecha(nframe,1),   p_rodilla_derecha(nframe,2),   p_rodilla_derecha(nframe,3),   's', 'MarkerSize',7, 'MarkerEdgeColor',color_rodilla, 'MarkerFaceColor',color_rodilla);
-    plot3(p_rodilla_izquierda(nframe,1), p_rodilla_izquierda(nframe,2), p_rodilla_izquierda(nframe,3), 's', 'MarkerSize',7, 'MarkerEdgeColor',color_rodilla, 'MarkerFaceColor','w');
-
-    % Tobillo (circulo ●)
-    plot3(p_tobillo_derecho(nframe,1),   p_tobillo_derecho(nframe,2),   p_tobillo_derecho(nframe,3),   'o', 'MarkerSize',7, 'MarkerEdgeColor',color_tobillo, 'MarkerFaceColor',color_tobillo);
-    plot3(p_tobillo_izquierdo(nframe,1), p_tobillo_izquierdo(nframe,2), p_tobillo_izquierdo(nframe,3), 'o', 'MarkerSize',7, 'MarkerEdgeColor',color_tobillo, 'MarkerFaceColor','w');
-
-    % Dedo gordo (triangulo ▲)
-    plot3(p_dedo_gordo_derecho(nframe,1),   p_dedo_gordo_derecho(nframe,2),   p_dedo_gordo_derecho(nframe,3),   '^', 'MarkerSize',7, 'MarkerEdgeColor',color_dedo, 'MarkerFaceColor',color_dedo);
-    plot3(p_dedo_gordo_izquierdo(nframe,1), p_dedo_gordo_izquierdo(nframe,2), p_dedo_gordo_izquierdo(nframe,3), '^', 'MarkerSize',7, 'MarkerEdgeColor',color_dedo, 'MarkerFaceColor','w');
-
-end
-
-%% Verificacion de distancias CA - Marcador
-fprintf('\n=== DISTANCIAS PROMEDIO CA - MARCADOR ===\n');
-
-% Tobillo Derecho (CA vs r_mall)
-d = sqrt(sum((p_tobillo_derecho - Datos.Pasada.Marcadores.Valores.r_mall).^2, 2));
-fprintf('Tobillo Derecho:   media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
-
-% Tobillo Izquierdo (CA vs l_mall)
-d = sqrt(sum((p_tobillo_izquierdo - Datos.Pasada.Marcadores.Valores.l_mall).^2, 2));
-fprintf('Tobillo Izquierdo: media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
-
-% Dedo Gordo Derecho (CA vs r_met)
-d = sqrt(sum((p_dedo_gordo_derecho - Datos.Pasada.Marcadores.Valores.r_met).^2, 2));
-fprintf('Dedo Gordo Derecho:   media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
-
-% Dedo Gordo Izquierdo (CA vs l_met)
-d = sqrt(sum((p_dedo_gordo_izquierdo - Datos.Pasada.Marcadores.Valores.l_met).^2, 2));
-fprintf('Dedo Gordo Izquierdo: media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
-
-% Rodilla Derecha (CA vs r_knee_1)
-d = sqrt(sum((p_rodilla_derecha - Datos.Pasada.Marcadores.Valores.r_knee_1).^2, 2));
-fprintf('Rodilla Derecha:   media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
-
-% Rodilla Izquierda (CA vs l_knee_1)
-d = sqrt(sum((p_rodilla_izquierda - Datos.Pasada.Marcadores.Valores.l_knee_1).^2, 2));
-fprintf('Rodilla Izquierda: media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
-
-%% Leyenda
-h1 = plot3(nan,nan,nan,'x',  'Color',color_cadera,  'LineWidth',1.5);
-h2 = plot3(nan,nan,nan,'-',  'Color',color_cadera,  'LineWidth',2);
-h3 = plot3(nan,nan,nan,'x',  'Color',color_rodilla, 'LineWidth',1.5);
-h4 = plot3(nan,nan,nan,'-',  'Color',color_rodilla, 'LineWidth',2);
-h5 = plot3(nan,nan,nan,'x',  'Color',color_tobillo, 'LineWidth',1.5);
-h6 = plot3(nan,nan,nan,'-',  'Color',color_tobillo, 'LineWidth',2);
-h7 = plot3(nan,nan,nan,'x',  'Color',color_dedo,    'LineWidth',1.5);
-h8 = plot3(nan,nan,nan,'-',  'Color',color_dedo,    'LineWidth',2);
-
-legend([h1 h2 h3 h4 h5 h6 h7 h8], ...
-    {'Marcador Cadera',  'CA Cadera', ...
-     'Marcador Rodilla', 'CA Rodilla', ...
-     'Marcador Tobillo', 'CA Tobillo', ...
-     'Marcador Dedo',    'CA Dedo'});
-
-view(3);
+% %% Graficacion de centros articulares + marcadores de verificacion
+% frames = length(p_rodilla_derecha);
+% figure;
+% hold on;
+% grid on;
+% title('Centros Articulares + Marcadores - Miembro Inferior');
+% xlabel('X (m)'); ylabel('Y (m)'); zlabel('Z (m)');
+% 
+% % Colores por articulacion
+% color_cadera  = [0.8 0.0 0.8];   % magenta
+% color_rodilla = [0.0 0.6 0.0];   % verde
+% color_tobillo = [0.0 0.4 1.0];   % azul
+% color_dedo    = [1.0 0.5 0.0];   % naranja
+% 
+% for nframe = 1:10:frames
+% 
+%     %% ---- MARCADORES CRUDOS (cruz x, mismo color que su CA) ----
+% 
+%     % Pelvis → cadera
+%     plot3(Datos.Pasada.Marcadores.Valores.r_asis(nframe,1), Datos.Pasada.Marcadores.Valores.r_asis(nframe,2), Datos.Pasada.Marcadores.Valores.r_asis(nframe,3), 'x', 'MarkerSize',6, 'Color',color_cadera, 'LineWidth',1.5);
+%     plot3(Datos.Pasada.Marcadores.Valores.l_asis(nframe,1), Datos.Pasada.Marcadores.Valores.l_asis(nframe,2), Datos.Pasada.Marcadores.Valores.l_asis(nframe,3), 'x', 'MarkerSize',6, 'Color',color_cadera, 'LineWidth',1.5);
+% 
+%     % Epicóndilo → rodilla
+%     plot3(Datos.Pasada.Marcadores.Valores.r_knee_1(nframe,1), Datos.Pasada.Marcadores.Valores.r_knee_1(nframe,2), Datos.Pasada.Marcadores.Valores.r_knee_1(nframe,3), 'x', 'MarkerSize',6, 'Color',color_rodilla, 'LineWidth',1.5);
+%     plot3(Datos.Pasada.Marcadores.Valores.l_knee_1(nframe,1), Datos.Pasada.Marcadores.Valores.l_knee_1(nframe,2), Datos.Pasada.Marcadores.Valores.l_knee_1(nframe,3), 'x', 'MarkerSize',6, 'Color',color_rodilla, 'LineWidth',1.5);
+% 
+%     % Maléolo → tobillo
+%     plot3(Datos.Pasada.Marcadores.Valores.r_mall(nframe,1), Datos.Pasada.Marcadores.Valores.r_mall(nframe,2), Datos.Pasada.Marcadores.Valores.r_mall(nframe,3), 'x', 'MarkerSize',6, 'Color',color_tobillo, 'LineWidth',1.5);
+%     plot3(Datos.Pasada.Marcadores.Valores.l_mall(nframe,1), Datos.Pasada.Marcadores.Valores.l_mall(nframe,2), Datos.Pasada.Marcadores.Valores.l_mall(nframe,3), 'x', 'MarkerSize',6, 'Color',color_tobillo, 'LineWidth',1.5);
+% 
+%     % Metatarso → dedo gordo
+%     plot3(Datos.Pasada.Marcadores.Valores.r_met(nframe,1), Datos.Pasada.Marcadores.Valores.r_met(nframe,2), Datos.Pasada.Marcadores.Valores.r_met(nframe,3), 'x', 'MarkerSize',6, 'Color',color_dedo, 'LineWidth',1.5);
+%     plot3(Datos.Pasada.Marcadores.Valores.l_met(nframe,1), Datos.Pasada.Marcadores.Valores.l_met(nframe,2), Datos.Pasada.Marcadores.Valores.l_met(nframe,3), 'x', 'MarkerSize',6, 'Color',color_dedo, 'LineWidth',1.5);
+% 
+%    %% ---- CENTROS ARTICULARES ----
+% 
+%     % Cadera (diamante ◆)
+%     plot3(p_cadera_derecha(nframe,1),   p_cadera_derecha(nframe,2),   p_cadera_derecha(nframe,3),   'd', 'MarkerSize',7, 'MarkerEdgeColor',color_cadera, 'MarkerFaceColor',color_cadera);
+%     plot3(p_cadera_izquierda(nframe,1), p_cadera_izquierda(nframe,2), p_cadera_izquierda(nframe,3), 'd', 'MarkerSize',7, 'MarkerEdgeColor',color_cadera, 'MarkerFaceColor','w');
+% 
+%     % Rodilla (cuadrado ■)
+%     plot3(p_rodilla_derecha(nframe,1),   p_rodilla_derecha(nframe,2),   p_rodilla_derecha(nframe,3),   's', 'MarkerSize',7, 'MarkerEdgeColor',color_rodilla, 'MarkerFaceColor',color_rodilla);
+%     plot3(p_rodilla_izquierda(nframe,1), p_rodilla_izquierda(nframe,2), p_rodilla_izquierda(nframe,3), 's', 'MarkerSize',7, 'MarkerEdgeColor',color_rodilla, 'MarkerFaceColor','w');
+% 
+%     % Tobillo (circulo ●)
+%     plot3(p_tobillo_derecho(nframe,1),   p_tobillo_derecho(nframe,2),   p_tobillo_derecho(nframe,3),   'o', 'MarkerSize',7, 'MarkerEdgeColor',color_tobillo, 'MarkerFaceColor',color_tobillo);
+%     plot3(p_tobillo_izquierdo(nframe,1), p_tobillo_izquierdo(nframe,2), p_tobillo_izquierdo(nframe,3), 'o', 'MarkerSize',7, 'MarkerEdgeColor',color_tobillo, 'MarkerFaceColor','w');
+% 
+%     % Dedo gordo (triangulo ▲)
+%     plot3(p_dedo_gordo_derecho(nframe,1),   p_dedo_gordo_derecho(nframe,2),   p_dedo_gordo_derecho(nframe,3),   '^', 'MarkerSize',7, 'MarkerEdgeColor',color_dedo, 'MarkerFaceColor',color_dedo);
+%     plot3(p_dedo_gordo_izquierdo(nframe,1), p_dedo_gordo_izquierdo(nframe,2), p_dedo_gordo_izquierdo(nframe,3), '^', 'MarkerSize',7, 'MarkerEdgeColor',color_dedo, 'MarkerFaceColor','w');
+% 
+% end
+% 
+% %% Verificacion de distancias CA - Marcador
+% fprintf('\n=== DISTANCIAS PROMEDIO CA - MARCADOR ===\n');
+% 
+% % Tobillo Derecho (CA vs r_mall)
+% d = sqrt(sum((p_tobillo_derecho - Datos.Pasada.Marcadores.Valores.r_mall).^2, 2));
+% fprintf('Tobillo Derecho:   media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+% 
+% % Tobillo Izquierdo (CA vs l_mall)
+% d = sqrt(sum((p_tobillo_izquierdo - Datos.Pasada.Marcadores.Valores.l_mall).^2, 2));
+% fprintf('Tobillo Izquierdo: media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+% 
+% % Dedo Gordo Derecho (CA vs r_met)
+% d = sqrt(sum((p_dedo_gordo_derecho - Datos.Pasada.Marcadores.Valores.r_met).^2, 2));
+% fprintf('Dedo Gordo Derecho:   media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+% 
+% % Dedo Gordo Izquierdo (CA vs l_met)
+% d = sqrt(sum((p_dedo_gordo_izquierdo - Datos.Pasada.Marcadores.Valores.l_met).^2, 2));
+% fprintf('Dedo Gordo Izquierdo: media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+% 
+% % Rodilla Derecha (CA vs r_knee_1)
+% d = sqrt(sum((p_rodilla_derecha - Datos.Pasada.Marcadores.Valores.r_knee_1).^2, 2));
+% fprintf('Rodilla Derecha:   media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+% 
+% % Rodilla Izquierda (CA vs l_knee_1)
+% d = sqrt(sum((p_rodilla_izquierda - Datos.Pasada.Marcadores.Valores.l_knee_1).^2, 2));
+% fprintf('Rodilla Izquierda: media=%.1f mm,  min=%.1f mm,  max=%.1f mm\n', mean(d)*1000, min(d)*1000, max(d)*1000);
+% 
+% %% Leyenda
+% h1 = plot3(nan,nan,nan,'x',  'Color',color_cadera,  'LineWidth',1.5);
+% h2 = plot3(nan,nan,nan,'-',  'Color',color_cadera,  'LineWidth',2);
+% h3 = plot3(nan,nan,nan,'x',  'Color',color_rodilla, 'LineWidth',1.5);
+% h4 = plot3(nan,nan,nan,'-',  'Color',color_rodilla, 'LineWidth',2);
+% h5 = plot3(nan,nan,nan,'x',  'Color',color_tobillo, 'LineWidth',1.5);
+% h6 = plot3(nan,nan,nan,'-',  'Color',color_tobillo, 'LineWidth',2);
+% h7 = plot3(nan,nan,nan,'x',  'Color',color_dedo,    'LineWidth',1.5);
+% h8 = plot3(nan,nan,nan,'-',  'Color',color_dedo,    'LineWidth',2);
+% 
+% legend([h1 h2 h3 h4 h5 h6 h7 h8], ...
+%     {'Marcador Cadera',  'CA Cadera', ...
+%      'Marcador Rodilla', 'CA Rodilla', ...
+%      'Marcador Tobillo', 'CA Tobillo', ...
+%      'Marcador Dedo',    'CA Dedo'});
+% 
+% view(3);

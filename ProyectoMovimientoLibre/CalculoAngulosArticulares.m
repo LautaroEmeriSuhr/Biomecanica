@@ -116,106 +116,106 @@ producto_punto = dot(I_l_ajc_normalizado, Datos.Pasada.SistemaCoordenadoAnatomic
 gamma_l_ajc = -asin(producto_punto);
 Datos.Pasada.AngulosArticulares.Gamma.Tobillo.Izquierdo = gamma_l_ajc;
 
-%% Graficación de Reporte - Gesto de Pitcheo
-%% =======================
-%% PREPARACIÓN
-% El pitcheo es un gesto único y continuo: ambas piernas se analizan sobre la
-% MISMA ventana temporal (no hay ciclos periódicos separados como en la marcha).
-% Tu archivo de eventos define el gesto con dos frames: Inicio y Fin.
-frame0 = Datos.eventos.Inicio;
-ventana = (Datos.eventos.Inicio:Datos.eventos.Fin) - frame0 + 1;
-
-% Eje normalizado: 0-100 % del gesto de pitcheo
-x = linspace(0,100,100);
- 
-% (OPCIONAL) Evento intermedio para dividir fases del pitcheo, p.ej. el
-% contacto del pie de aterrizaje (lead foot contact) o el momento de soltar
-% la pelota (ball release). Si lo tenés cargado en Datos.eventos, descomentá
-% y ajustá el nombre del campo:
-% x_evento = (Datos.eventos.ContactoPie - Datos.eventos.Inicio) / ...
-%            (Datos.eventos.Fin - Datos.eventos.Inicio) * 100;
-x_evento = NaN;   % NaN -> no se dibuja línea vertical de evento
- 
-%% =======================
-%% FIGURA COMPLETA
- 
-figure
-sgtitle('Ángulos Articulares - Gesto de Pitcheo','FontSize',14,'FontWeight','bold')
- 
-%% ===== CADERA =====
- 
-subplot(3,3,1)
-graficar(x, ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Cadera.Derecha(ventana)), ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Cadera.Izquierda(ventana)), ...
-    x_evento, x_evento, 'Cadera Flex/Ext')
-ylabel('°')
-xlabel('% del pitcheo')
- 
-subplot(3,3,2)
-graficar(x, ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Cadera.Derecha(ventana)), ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Cadera.Izquierda(ventana)), ...
-    x_evento, x_evento, 'Cadera Abd/Add')
-ylabel('°')
-xlabel('% del pitcheo')
- 
-subplot(3,3,3)
-graficar(x, ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Cadera.Derecha(ventana)), ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Cadera.Izquierda(ventana)), ...
-    x_evento, x_evento, 'Cadera Rotación')
-ylabel('°')
-xlabel('% del pitcheo')
- 
-%% ===== RODILLA =====
- 
-subplot(3,3,4)
-graficar(x, ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Rodilla.Derecha(ventana)), ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Rodilla.Izquierda(ventana)), ...
-    x_evento, x_evento, 'Rodilla Flex/Ext')
-ylabel('°')
-xlabel('% del pitcheo')
- 
-subplot(3,3,5)
-graficar(x, ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Rodilla.Derecha(ventana)), ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Rodilla.Izquierda(ventana)), ...
-    x_evento, x_evento, 'Rodilla Abd/Add')
-ylabel('°')
-xlabel('% del pitcheo')
- 
-subplot(3,3,6)
-graficar(x, ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Rodilla.Derecha(ventana)), ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Rodilla.Izquierda(ventana)), ...
-    x_evento, x_evento, 'Rodilla Rotación')
-ylabel('°')
-xlabel('% del pitcheo')
- 
-%% ===== TOBILLO =====
- 
-subplot(3,3,7)
-graficar(x, ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Tobillo.Derecho(ventana)), ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Tobillo.Izquierdo(ventana)), ...
-    x_evento, x_evento, 'Tobillo Dorsi/Plantar')
-ylabel('°')
-xlabel('% del pitcheo')
- 
-subplot(3,3,8)
-graficar(x, ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Tobillo.Derecho(ventana)), ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Tobillo.Izquierdo(ventana)), ...
-    x_evento, x_evento, 'Tobillo Inv/Ever')
-ylabel('°')
-xlabel('% del pitcheo')
- 
-subplot(3,3,9)
-graficar(x, ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Tobillo.Derecho(ventana)), ...
-    InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Tobillo.Izquierdo(ventana)), ...
-    x_evento, x_evento, 'Tobillo Progresión Int/Ext')
-ylabel('°')
-xlabel('% del pitcheo')
+% %% Graficación de Reporte - Gesto de Pitcheo
+% %% =======================
+% %% PREPARACIÓN
+% % El pitcheo es un gesto único y continuo: ambas piernas se analizan sobre la
+% % MISMA ventana temporal (no hay ciclos periódicos separados como en la marcha).
+% % Tu archivo de eventos define el gesto con dos frames: Inicio y Fin.
+% frame0 = Datos.eventos.Inicio;
+% ventana = (Datos.eventos.Inicio:Datos.eventos.Fin) - frame0 + 1;
+% 
+% % Eje normalizado: 0-100 % del gesto de pitcheo
+% x = linspace(0,100,100);
+% 
+% % (OPCIONAL) Evento intermedio para dividir fases del pitcheo, p.ej. el
+% % contacto del pie de aterrizaje (lead foot contact) o el momento de soltar
+% % la pelota (ball release). Si lo tenés cargado en Datos.eventos, descomentá
+% % y ajustá el nombre del campo:
+% % x_evento = (Datos.eventos.ContactoPie - Datos.eventos.Inicio) / ...
+% %            (Datos.eventos.Fin - Datos.eventos.Inicio) * 100;
+% x_evento = NaN;   % NaN -> no se dibuja línea vertical de evento
+% 
+% %% =======================
+% %% FIGURA COMPLETA
+% 
+% figure
+% sgtitle('Ángulos Articulares - Gesto de Pitcheo','FontSize',14,'FontWeight','bold')
+% 
+% %% ===== CADERA =====
+% 
+% subplot(3,3,1)
+% graficar(x, ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Cadera.Derecha(ventana)), ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Cadera.Izquierda(ventana)), ...
+%     x_evento, x_evento, 'Cadera Flex/Ext')
+% ylabel('°')
+% xlabel('% del pitcheo')
+% 
+% subplot(3,3,2)
+% graficar(x, ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Cadera.Derecha(ventana)), ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Cadera.Izquierda(ventana)), ...
+%     x_evento, x_evento, 'Cadera Abd/Add')
+% ylabel('°')
+% xlabel('% del pitcheo')
+% 
+% subplot(3,3,3)
+% graficar(x, ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Cadera.Derecha(ventana)), ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Cadera.Izquierda(ventana)), ...
+%     x_evento, x_evento, 'Cadera Rotación')
+% ylabel('°')
+% xlabel('% del pitcheo')
+% 
+% %% ===== RODILLA =====
+% 
+% subplot(3,3,4)
+% graficar(x, ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Rodilla.Derecha(ventana)), ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Rodilla.Izquierda(ventana)), ...
+%     x_evento, x_evento, 'Rodilla Flex/Ext')
+% ylabel('°')
+% xlabel('% del pitcheo')
+% 
+% subplot(3,3,5)
+% graficar(x, ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Rodilla.Derecha(ventana)), ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Rodilla.Izquierda(ventana)), ...
+%     x_evento, x_evento, 'Rodilla Abd/Add')
+% ylabel('°')
+% xlabel('% del pitcheo')
+% 
+% subplot(3,3,6)
+% graficar(x, ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Rodilla.Derecha(ventana)), ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Rodilla.Izquierda(ventana)), ...
+%     x_evento, x_evento, 'Rodilla Rotación')
+% ylabel('°')
+% xlabel('% del pitcheo')
+% 
+% %% ===== TOBILLO =====
+% 
+% subplot(3,3,7)
+% graficar(x, ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Tobillo.Derecho(ventana)), ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Alpha.Tobillo.Izquierdo(ventana)), ...
+%     x_evento, x_evento, 'Tobillo Dorsi/Plantar')
+% ylabel('°')
+% xlabel('% del pitcheo')
+% 
+% subplot(3,3,8)
+% graficar(x, ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Tobillo.Derecho(ventana)), ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Gamma.Tobillo.Izquierdo(ventana)), ...
+%     x_evento, x_evento, 'Tobillo Inv/Ever')
+% ylabel('°')
+% xlabel('% del pitcheo')
+% 
+% subplot(3,3,9)
+% graficar(x, ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Tobillo.Derecho(ventana)), ...
+%     InterpolaA100Muestras(Datos.Pasada.AngulosArticulares.Beta.Tobillo.Izquierdo(ventana)), ...
+%     x_evento, x_evento, 'Tobillo Progresión Int/Ext')
+% ylabel('°')
+% xlabel('% del pitcheo')

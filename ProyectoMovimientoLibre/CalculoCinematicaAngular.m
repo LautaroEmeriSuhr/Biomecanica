@@ -158,144 +158,144 @@ for s = 1:size(segmentos, 1)
     end
 end
 
-%% Graficación - Gesto de Pitcheo
-%% =======================
-%% PREPARACIÓN
-% El pitcheo es un gesto único y continuo: ambas piernas se analizan sobre la
-% MISMA ventana temporal (no hay ciclos periódicos separados como en la marcha).
-frame0  = Datos.eventos.Inicio;
-ventana = (Datos.eventos.Inicio : Datos.eventos.Fin) - frame0 + 1;
+% %% Graficación - Gesto de Pitcheo
+% %% =======================
+% %% PREPARACIÓN
+% % El pitcheo es un gesto único y continuo: ambas piernas se analizan sobre la
+% % MISMA ventana temporal (no hay ciclos periódicos separados como en la marcha).
+% frame0  = Datos.eventos.Inicio;
+% ventana = (Datos.eventos.Inicio : Datos.eventos.Fin) - frame0 + 1;
+% 
+% % Eje normalizado: 0-100 % del gesto de pitcheo
+% x = linspace(0, 100, 100);
+% 
+% % (OPCIONAL) Evento intermedio para dividir fases del pitcheo.
+% % Si lo tenés cargado en Datos.eventos, descomentá y ajustá el nombre:
+% % x_evento = (Datos.eventos.ContactoPie - Datos.eventos.Inicio) / ...
+% %            (Datos.eventos.Fin - Datos.eventos.Inicio) * 100;
+% x_evento = NaN;   % NaN -> no se dibuja línea vertical de evento
+% 
+% %% Tabla de segmentos (igual que en el cálculo)
+% segmentos = {
+%     'Muslo',   'Derecho',  'Izquierdo';
+%     'Pierna',  'Derecha',  'Izquierda';
+%     'Pie',     'Derecho',  'Izquierdo'
+% };
+% 
+% ejes = {'i (AP)', 'j (long.)', 'k (ML)'};
+% 
+% %% =======================
+% %% Figura: Velocidad Angular de los Segmentos
+% componentes = {'wx', 'wy', 'wz'};
+% 
+% figure('Name', 'Velocidades angulares de los segmentos');
+% sgtitle('Velocidades Angulares de los Segmentos - Gesto de Pitcheo', ...
+%         'FontSize', 14, 'FontWeight', 'bold');
+% 
+% for s = 1:size(segmentos, 1)
+%     seg    = segmentos{s, 1};
+%     sufDer = segmentos{s, 2};
+%     sufIzq = segmentos{s, 3};
+% 
+%     for c = 1:length(componentes)
+%         subplot(3, 3, (s-1)*3 + c);
+% 
+%         senal_der = Datos.Pasada.VelocidadAngular.(seg).(sufDer).(componentes{c});
+%         senal_izq = Datos.Pasada.VelocidadAngular.(seg).(sufIzq).(componentes{c});
+% 
+%         graficar(x, ...
+%             InterpolaA100Muestras(senal_der(ventana)), ...
+%             InterpolaA100Muestras(senal_izq(ventana)), ...
+%             x_evento, x_evento, ...
+%             ['Vel Ang ', seg, ' - versor ', ejes{c}]);
+%         ylabel('°/s')
+%         xlabel('% del pitcheo')
+%     end
+% end
 
-% Eje normalizado: 0-100 % del gesto de pitcheo
-x = linspace(0, 100, 100);
-
-% (OPCIONAL) Evento intermedio para dividir fases del pitcheo.
-% Si lo tenés cargado en Datos.eventos, descomentá y ajustá el nombre:
-% x_evento = (Datos.eventos.ContactoPie - Datos.eventos.Inicio) / ...
-%            (Datos.eventos.Fin - Datos.eventos.Inicio) * 100;
-x_evento = NaN;   % NaN -> no se dibuja línea vertical de evento
-
-%% Tabla de segmentos (igual que en el cálculo)
-segmentos = {
-    'Muslo',   'Derecho',  'Izquierdo';
-    'Pierna',  'Derecha',  'Izquierda';
-    'Pie',     'Derecho',  'Izquierdo'
-};
-
-ejes = {'i (AP)', 'j (long.)', 'k (ML)'};
-
-%% =======================
-%% Figura: Velocidad Angular de los Segmentos
-componentes = {'wx', 'wy', 'wz'};
-
-figure('Name', 'Velocidades angulares de los segmentos');
-sgtitle('Velocidades Angulares de los Segmentos - Gesto de Pitcheo', ...
-        'FontSize', 14, 'FontWeight', 'bold');
-
-for s = 1:size(segmentos, 1)
-    seg    = segmentos{s, 1};
-    sufDer = segmentos{s, 2};
-    sufIzq = segmentos{s, 3};
-
-    for c = 1:length(componentes)
-        subplot(3, 3, (s-1)*3 + c);
-
-        senal_der = Datos.Pasada.VelocidadAngular.(seg).(sufDer).(componentes{c});
-        senal_izq = Datos.Pasada.VelocidadAngular.(seg).(sufIzq).(componentes{c});
-
-        graficar(x, ...
-            InterpolaA100Muestras(senal_der(ventana)), ...
-            InterpolaA100Muestras(senal_izq(ventana)), ...
-            x_evento, x_evento, ...
-            ['Vel Ang ', seg, ' - versor ', ejes{c}]);
-        ylabel('°/s')
-        xlabel('% del pitcheo')
-    end
-end
-
-%% Figura: Aceleración Angular de los Segmentos
-componentes = {'alphax', 'alphay', 'alphaz'};
-
-figure('Name', 'Aceleraciones angulares de los segmentos');
-sgtitle('Aceleraciones Angulares de los Segmentos - Gesto de Pitcheo', ...
-        'FontSize', 14, 'FontWeight', 'bold');
-
-for s = 1:size(segmentos, 1)
-    seg    = segmentos{s, 1};
-    sufDer = segmentos{s, 2};
-    sufIzq = segmentos{s, 3};
-
-    for c = 1:length(componentes)
-        subplot(3, 3, (s-1)*3 + c);
-
-        senal_der = Datos.Pasada.AceleracionAngular.(seg).(sufDer).(componentes{c});
-        senal_izq = Datos.Pasada.AceleracionAngular.(seg).(sufIzq).(componentes{c});
-
-        graficar(x, ...
-            InterpolaA100Muestras(senal_der(ventana)), ...
-            InterpolaA100Muestras(senal_izq(ventana)), ...
-            x_evento, x_evento, ...
-            ['Acel Ang ', seg, ' - versor ', ejes{c}]);
-        ylabel('°/s^2')
-        xlabel('% del pitcheo')
-    end
-end
-
-%% Figura: Cantidad de Movimiento Angular de los Segmentos
-componentes = {'Hx', 'Hy', 'Hz'};
-
-figure('Name', 'Cantidad de movimiento angular de los segmentos');
-sgtitle('Cantidad de Movimiento Angular de los Segmentos - Gesto de Pitcheo', ...
-        'FontSize', 14, 'FontWeight', 'bold');
-
-for s = 1:size(segmentos, 1)
-    seg    = segmentos{s, 1};
-    sufDer = segmentos{s, 2};
-    sufIzq = segmentos{s, 3};
-
-    for c = 1:length(componentes)
-        subplot(3, 3, (s-1)*3 + c);
-
-        senal_der = Datos.Pasada.CantidadMovimientoAngular.(seg).(sufDer).(componentes{c});
-        senal_izq = Datos.Pasada.CantidadMovimientoAngular.(seg).(sufIzq).(componentes{c});
-
-        graficar(x, ...
-            InterpolaA100Muestras(senal_der(ventana)), ...
-            InterpolaA100Muestras(senal_izq(ventana)), ...
-            x_evento, x_evento, ...
-            ['H ', seg, ' - versor ', ejes{c}]);
-        ylabel('H [kg\cdotm^2/s]')
-        xlabel('% del pitcheo')
-    end
-end
-
-%% Figura: Derivada de la Cantidad de Movimiento Angular de los Segmentos
-componentes = {'dHx_dt', 'dHy_dt', 'dHz_dt'};
-
-figure('Name', 'Derivada de la cantidad de movimiento angular');
-sgtitle('dH/dt de los Segmentos - Gesto de Pitcheo', ...
-        'FontSize', 14, 'FontWeight', 'bold');
-
-for s = 1:size(segmentos, 1)
-    seg    = segmentos{s, 1};
-    sufDer = segmentos{s, 2};
-    sufIzq = segmentos{s, 3};
-
-    for c = 1:length(componentes)
-        subplot(3, 3, (s-1)*3 + c);
-
-        senal_der = Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(sufDer).(componentes{c});
-        senal_izq = Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(sufIzq).(componentes{c});
-
-        graficar(x, ...
-            InterpolaA100Muestras(senal_der(ventana)), ...
-            InterpolaA100Muestras(senal_izq(ventana)), ...
-            x_evento, x_evento, ...
-            ['dH/dt ', seg, ' - versor ', ejes{c}]);
-        ylabel('kg\cdotm^2/s^2')
-        xlabel('% del pitcheo')
-    end
-end
+% %% Figura: Aceleración Angular de los Segmentos
+% componentes = {'alphax', 'alphay', 'alphaz'};
+% 
+% figure('Name', 'Aceleraciones angulares de los segmentos');
+% sgtitle('Aceleraciones Angulares de los Segmentos - Gesto de Pitcheo', ...
+%         'FontSize', 14, 'FontWeight', 'bold');
+% 
+% for s = 1:size(segmentos, 1)
+%     seg    = segmentos{s, 1};
+%     sufDer = segmentos{s, 2};
+%     sufIzq = segmentos{s, 3};
+% 
+%     for c = 1:length(componentes)
+%         subplot(3, 3, (s-1)*3 + c);
+% 
+%         senal_der = Datos.Pasada.AceleracionAngular.(seg).(sufDer).(componentes{c});
+%         senal_izq = Datos.Pasada.AceleracionAngular.(seg).(sufIzq).(componentes{c});
+% 
+%         graficar(x, ...
+%             InterpolaA100Muestras(senal_der(ventana)), ...
+%             InterpolaA100Muestras(senal_izq(ventana)), ...
+%             x_evento, x_evento, ...
+%             ['Acel Ang ', seg, ' - versor ', ejes{c}]);
+%         ylabel('°/s^2')
+%         xlabel('% del pitcheo')
+%     end
+% end
+% 
+% %% Figura: Cantidad de Movimiento Angular de los Segmentos
+% componentes = {'Hx', 'Hy', 'Hz'};
+% 
+% figure('Name', 'Cantidad de movimiento angular de los segmentos');
+% sgtitle('Cantidad de Movimiento Angular de los Segmentos - Gesto de Pitcheo', ...
+%         'FontSize', 14, 'FontWeight', 'bold');
+% 
+% for s = 1:size(segmentos, 1)
+%     seg    = segmentos{s, 1};
+%     sufDer = segmentos{s, 2};
+%     sufIzq = segmentos{s, 3};
+% 
+%     for c = 1:length(componentes)
+%         subplot(3, 3, (s-1)*3 + c);
+% 
+%         senal_der = Datos.Pasada.CantidadMovimientoAngular.(seg).(sufDer).(componentes{c});
+%         senal_izq = Datos.Pasada.CantidadMovimientoAngular.(seg).(sufIzq).(componentes{c});
+% 
+%         graficar(x, ...
+%             InterpolaA100Muestras(senal_der(ventana)), ...
+%             InterpolaA100Muestras(senal_izq(ventana)), ...
+%             x_evento, x_evento, ...
+%             ['H ', seg, ' - versor ', ejes{c}]);
+%         ylabel('H [kg\cdotm^2/s]')
+%         xlabel('% del pitcheo')
+%     end
+% end
+% 
+% %% Figura: Derivada de la Cantidad de Movimiento Angular de los Segmentos
+% componentes = {'dHx_dt', 'dHy_dt', 'dHz_dt'};
+% 
+% figure('Name', 'Derivada de la cantidad de movimiento angular');
+% sgtitle('dH/dt de los Segmentos - Gesto de Pitcheo', ...
+%         'FontSize', 14, 'FontWeight', 'bold');
+% 
+% for s = 1:size(segmentos, 1)
+%     seg    = segmentos{s, 1};
+%     sufDer = segmentos{s, 2};
+%     sufIzq = segmentos{s, 3};
+% 
+%     for c = 1:length(componentes)
+%         subplot(3, 3, (s-1)*3 + c);
+% 
+%         senal_der = Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(sufDer).(componentes{c});
+%         senal_izq = Datos.Pasada.DerivadaCantidadMovimientoAngular.(seg).(sufIzq).(componentes{c});
+% 
+%         graficar(x, ...
+%             InterpolaA100Muestras(senal_der(ventana)), ...
+%             InterpolaA100Muestras(senal_izq(ventana)), ...
+%             x_evento, x_evento, ...
+%             ['dH/dt ', seg, ' - versor ', ejes{c}]);
+%         ylabel('kg\cdotm^2/s^2')
+%         xlabel('% del pitcheo')
+%     end
+% end
 
 end % ===================== fin función principal =========================
 
